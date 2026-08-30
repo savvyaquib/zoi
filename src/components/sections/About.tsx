@@ -111,6 +111,7 @@ export function About() {
   const reducedMotion = useReducedMotion();
   const lenisRef = useLenisRef();
   const sectionRef = useRef<HTMLElement>(null);
+  const liftRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -210,6 +211,61 @@ export function About() {
       });
 
       /*
+        The lift — mobile only. See the note on the element itself.
+
+        Tied to the HERO's scroll range rather than a hand-picked distance, so the
+        word finishes arriving at centre exactly as the hero clears the top of the
+        screen however tall the hero happens to be. `yPercent` keeps it resolution
+        independent, and `ease: "none"` keeps it locked 1:1 to the scroll instead
+        of easing ahead of or behind the hero.
+
+        This runs entirely BEFORE `st` becomes active, so it never competes with
+        the slide timeline or with the snap settle (which bails unless `st` is
+        active).
+      */
+      const mm = gsap.matchMedia();
+      mm.add("(max-width: 767px)", () => {
+        const hero = document.getElementById("hero");
+        const lift = liftRef.current;
+        if (!hero || !lift) return;
+
+        /*
+          `y: 0` is pinned in BOTH states on purpose, and removing it breaks this.
+
+          GSAP reads an element's starting transform from getComputedStyle, which
+          reports a MATRIX — percentages are already resolved to pixels by then. So
+          the CSS `translateY(-25%)` on this element is read as `y: -233px`, not as
+          `yPercent: -25`. Those are separate, additive channels: animating only
+          yPercent would leave that -233px in place forever, and the word would
+          settle a quarter-screen high instead of centred.
+
+          Declaring `y: 0` tells GSAP the pixel channel is zero, so yPercent alone
+          drives the move and it genuinely lands at centre.
+
+          `scrub: true` rather than a number: this is meant to track the hero 1:1.
+          A scrub delay makes the text lag the finger, which is the "heavy" feel —
+          here the text should move exactly as much as the hero does.
+        */
+        gsap.fromTo(
+          lift,
+          { yPercent: -25, y: 0 },
+          {
+            yPercent: 0,
+            y: 0,
+            ease: "none",
+            force3D: true,
+            scrollTrigger: {
+              trigger: hero,
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      });
+
+      /*
         ── Why the settle is hand-rolled instead of ScrollTrigger's `snap` ───────
 
         Lenis owns the scroll position: every frame it writes scrollTop toward its
@@ -223,9 +279,21 @@ export function About() {
         guess. The settle's own scrolling restarts the debounce; by the time it
         fires again we are already on a rest point and the epsilon check bails.
       */
+      /*
+        Desktop only.
+
+        A wheel or trackpad scroll stops dead when the user stops, so nudging it
+        onto a beat there reads as polish. A touch scroll does not stop dead — it
+        carries momentum, and a settle that fires 140ms after the finger lifts is
+        pulling against a flick the visitor is still watching. That is the "heavy",
+        "fights me" feeling on a phone. Native momentum is smoother than anything
+        we would impose on top of it, so mobile keeps its own scroll.
+      */
+      const canSettle = window.matchMedia("(min-width: 768px)").matches;
+
       const settle = () => {
         const lenis = lenisRef.current;
-        if (!st.isActive) return;
+        if (!canSettle || !st.isActive) return;
 
         const progress = st.progress;
         const nearest = snapPoints.reduce((best, p) =>
@@ -304,18 +372,43 @@ export function About() {
       id="about"
       className={`relative z-0 h-[400svh] md:h-[450vh] ${SLIDES[0].bg}`}
     >
-      {/*
-        On a phone the stage occupies the BOTTOM half, directly beneath the sticky
-        hero, so the pair fills exactly one screen with no gap. `top-[50svh]` and
-        `h-[50svh]` are the hero's height — if that changes, both of these change
-        with it.
+      <div className="sticky top-0 h-dvh overflow-hidden">
+        {/*
+          The "lift".
 
-        `svh` rather than `dvh` deliberately: `dvh` shifts as the URL bar hides,
-        which would slide the stage out from under the hero mid-scroll.
+          On a phone the hero is half height, so at rest this stage's top sits at
+          50svh and its centred content would fall at 100svh — off the bottom of
+          the screen. Starting the content a quarter of the stage higher puts it in
+          the middle of the visible bottom half instead, which is the composition
+          you see before scrolling.
 
-        From `md` up it takes the whole viewport, as before.
-      */}
-      <div className="sticky top-[50svh] h-[50svh] overflow-hidden md:top-0 md:h-dvh">
+          As the hero scrolls away the lift eases back to 0, so the word glides up
+          into the centre of the screen exactly as the hero clears it — one
+          continuous move rather than the content snapping into place once the pin
+          engages. Driven off the HERO's own scroll range, so the two are locked
+          together by construction.
+
+          The offset is repeated in CSS as well as in the tween because this
+          section is server rendered — without it the first paint would put the
+          word off-screen for a frame before GSAP takes over.
+
+          It is written as an arbitrary `transform`, NOT `-translate-y-1/4`.
+          Tailwind v4 compiles its translate utilities to the separate `translate`
+          property, which COMPOSES with `transform` rather than replacing it — so
+          the class and GSAP's inline `transform` would both apply and the content
+          would sit twice as high as intended. Same property, no stacking.
+        */}
+        <div
+          ref={liftRef}
+          /*
+            No `will-change` here. This wrapper holds four full-screen panels, so
+            promoting it permanently keeps a viewport-sized layer of display type
+            in GPU memory for the life of the page. GSAP's `force3D` promotes it
+            only while the lift is actually running, which is the ~50svh it takes
+            the hero to leave.
+          */
+          className="absolute inset-0 [transform:translateY(-25%)] md:[transform:none]"
+        >
         {SLIDES.map((slide, i) => (
           <div
             key={slide.word}
@@ -332,8 +425,6 @@ export function About() {
           >
             <h2
               data-word
-              /* Smaller than the reduced-motion stack: on mobile this sits in a
-                 half-height stage, not a full one. */
               className={`font-display text-[16vw] leading-[0.9] ${slide.wordColor} md:text-[13vw]`}
             >
               {slide.word}
@@ -345,7 +436,8 @@ export function About() {
               {slide.line}
             </p>
           </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
