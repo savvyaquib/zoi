@@ -242,8 +242,6 @@ export function Ambience() {
             {headlineText}
           </h2>
 
-          <span id="gallery" aria-hidden="true" className="block h-px w-px" />
-
           {/*
             Native horizontal scroll with snap points. `data-lenis-prevent` keeps
             Lenis off this axis, and `overscroll-x-contain` stops a swipe that runs
@@ -286,20 +284,6 @@ export function Ambience() {
   /* ── Desktop ──────────────────────────────────────────────────────────────── */
   return (
     <section ref={sectionRef} id="ambience" className="relative h-[420vh] bg-navy">
-      {/*
-        Anchor target for the footer's "Gallery" link.
-
-        It cannot live on the track: that sits inside a `position: sticky` container
-        AND carries a GSAP transform, so its measured offset moves as you scroll and
-        scrollTo lands somewhere arbitrary. This marker sits in the section's own
-        flow, at roughly the scroll position where the cards have finished arriving.
-      */}
-      <span
-        id="gallery"
-        aria-hidden="true"
-        className="pointer-events-none absolute top-[55%] left-0 h-px w-px"
-      />
-
       <div ref={stageRef} className="sticky top-0 h-dvh w-full overflow-hidden bg-navy">
         {/* Beat 1 — the loop, full-bleed. */}
         <video

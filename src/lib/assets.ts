@@ -89,10 +89,17 @@ export const BRAND = {
   logo: { src: "/assets/brand/zoi-logo.png", width: 3130, height: 2700 },
 } as const;
 
+/**
+ * The reservation dining shot.
+ *
+ * 1600x2400 — the same clean 2:3 portrait as the ambience set, and 0.67 MB where
+ * the file it replaced was 7.70 MB. The old `photo.jpg` is gone; the path changed
+ * with it, so this is not just a dimension update.
+ */
 export const RESERVATION_IMAGE = {
-  src: "/assets/reservation/photo.jpg",
-  width: 1840,
-  height: 2304,
+  src: "/assets/reservation/reservation.jpg",
+  width: 1600,
+  height: 2400,
 } as const;
 
 /** Venue facts — exact values from CLAUDE.md. Do not invent variations. */
