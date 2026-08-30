@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/*
+  Zoi palette — these four colors are the ENTIRE palette (see CLAUDE.md).
+  Never introduce greys or other hues; tint with opacity of these instead
+  (e.g. text-white/60, bg-navy/80).
+*/
+@theme {
+  --color-orange: #ff6542;
+  --color-navy: #0b0f1a;
+  --color-white: #f5f3ee;
+  --color-blue: #4169e1;
+
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
+}
+
+html {
+  background-color: var(--color-navy);
+  /* Lenis drives scrolling; native smooth-scroll would fight it. */
+  scroll-behavior: auto;
+}
+
+body {
+  background-color: var(--color-white);
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  /* The page is a horizontal-safe scroll story — never let a track leak sideways. */
+  overflow-x: clip;
+}
+
+::selection {
+  background-color: var(--color-orange);
+  color: var(--color-white);
+}
+
+/*
+  Reduced motion: kill every transition/animation outright. GSAP timelines are
+  handled separately in JS via gsap.matchMedia() — this covers CSS only.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
