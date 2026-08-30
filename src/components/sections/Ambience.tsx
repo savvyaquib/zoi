@@ -250,7 +250,24 @@ export function Ambience() {
           <div
             ref={scrollerRef}
             data-lenis-prevent
-            className="mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            /*
+              `overflow-y-hidden` and the `touch-action` are what stop this strip
+              eating vertical swipes — without them a finger that lands on a photo
+              cannot scroll the page at all.
+
+              Setting only `overflow-x: auto` does NOT leave the other axis alone.
+              Per the CSS Overflow spec, when one axis is non-`visible` and the
+              other is `visible`, the `visible` one computes to `auto` — so this
+              became a VERTICAL scroll container too, with zero scrollable height.
+              An upward swipe was handed to a container that had nowhere to go and
+              stopped there instead of chaining to the page.
+
+              `touch-action: pan-x pinch-zoom` then says explicitly that this
+              element handles horizontal panning only, so vertical gestures go
+              straight to the page. `pinch-zoom` is kept deliberately — restricting
+              touch-action must never cost the visitor the ability to zoom.
+            */
+            className="mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-5 pb-1 [scrollbar-width:none] [touch-action:pan-x_pinch-zoom] [&::-webkit-scrollbar]:hidden"
           >
             {AMBIENCE_GALLERY.map((item) => (
               <figure key={item.src} className="w-[58vw] shrink-0 snap-start">
