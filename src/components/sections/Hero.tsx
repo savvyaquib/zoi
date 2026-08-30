@@ -378,7 +378,27 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative h-[50svh] w-full overflow-hidden bg-navy md:h-dvh"
+      /*
+        `sticky` on mobile only, so the hero holds the TOP half of the screen while
+        the About deck plays in the bottom half — the two read as one screen and
+        there is no dead gap between them. They share a wrapper (see page.tsx),
+        which is what bounds the stickiness: both release together once the About
+        deck ends, and the page carries on to Ambience.
+
+        `z-10` is load-bearing. About is a later, positioned sibling, so by default
+        its full-height background would paint straight over the sticky hero.
+
+        From `md` up this is a normal full-viewport section that scrolls away.
+
+        The desktop override is `relative`, never `static`. Everything inside this
+        section is `absolute inset-0`, so the section has to remain a positioned
+        ancestor. Made static, those children escape to the nearest positioned
+        ancestor — which is now the Hero+About wrapper, roughly 550vh tall — and
+        the video stretches to that height while the thumbnail geometry is measured
+        against the same wrong box. `relative` is not sticky, so desktop behaves
+        exactly as it did before any of the mobile work.
+      */
+      className="sticky top-0 z-10 h-[50svh] w-full overflow-hidden bg-navy md:relative md:h-dvh"
     >
       {/*
         Phase 3. Sits underneath the stills for the whole intro and is absolutely
