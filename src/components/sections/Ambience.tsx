@@ -269,16 +269,25 @@ export function Ambience() {
                  computes to `auto`. This was silently a vertical scroll container
                  with zero scrollable height, swallowing upward swipes.
 
-              3. `touch-action: pan-x pinch-zoom`. States up front that this
-                 element handles horizontal panning only, so vertical gestures go
-                 to the page without having to fail here first. `pinch-zoom` is
-                 kept deliberately — restricting touch-action must never cost the
-                 visitor the ability to zoom into a photo.
+              3. NO `touch-action`. It stays at its default `auto`, which permits
+                 every gesture. `touch-action` does NOT delegate — the browser
+                 intersects the value down the ancestor chain from whatever the
+                 finger lands on, and the STRICTEST value wins. So `pan-x` on this
+                 strip does not mean "vertical belongs to the page", it means
+                 "vertical panning is forbidden for this touch", page included.
+                 Naming an axis here is how you trap the gesture, not how you free
+                 it.
 
               `overscroll-x-contain` stays: a horizontal swipe running off the end
               should not chain sideways into browser back-navigation.
+
+              Snap is `proximity`, not `mandatory`. Mandatory forces a landing on
+              every gesture, so a short or diagonal swipe gets yanked to a card
+              instead of being allowed to drift — which reads as the strip fighting
+              your finger. Proximity keeps the tidy alignment on a deliberate
+              horizontal swipe and stays out of the way otherwise.
             */
-            className="mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto px-5 pb-1 [scrollbar-width:none] [touch-action:pan-x_pinch-zoom] [&::-webkit-scrollbar]:hidden"
+            className="mt-7 flex snap-x snap-proximity gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {AMBIENCE_GALLERY.map((item) => (
               <figure key={item.src} className="w-[58vw] shrink-0 snap-start">
