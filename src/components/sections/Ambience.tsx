@@ -38,8 +38,9 @@ const WIPE_END = 0.56;
  * That choice is also the performance story. A pinned, scrubbed stage runs work on
  * every scroll event; this runs none. The only scroll-linked JS on a phone is the
  * progress bar, which is a passive listener writing one `scaleX` per frame. Lenis
- * is already on native touch scroll (`syncTouch: false`), and the scroller carries
- * `data-lenis-prevent` so Lenis keeps its hands off the horizontal axis entirely.
+ * is already on native touch scroll (`syncTouch: false`), so it never handles
+ * these gestures — see the note on the scroller for why it must NOT be marked
+ * `data-lenis-prevent`.
  *
  * ── The video ──────────────────────────────────────────────────────────────
  *
@@ -242,32 +243,42 @@ export function Ambience() {
             {headlineText}
           </h2>
 
-          {/*
-            Native horizontal scroll with snap points. `data-lenis-prevent` keeps
-            Lenis off this axis, and `overscroll-x-contain` stops a swipe that runs
-            out of track from chaining into the page behind it.
-          */}
+          {/* Native horizontal scroll with snap points. */}
           <div
             ref={scrollerRef}
-            data-lenis-prevent
             /*
-              `overflow-y-hidden` and the `touch-action` are what stop this strip
-              eating vertical swipes — without them a finger that lands on a photo
-              cannot scroll the page at all.
+              Three things here exist so a finger landing on a photo can still
+              scroll the PAGE. Getting any one of them wrong traps the gesture.
 
-              Setting only `overflow-x: auto` does NOT leave the other axis alone.
-              Per the CSS Overflow spec, when one axis is non-`visible` and the
-              other is `visible`, the `visible` one computes to `auto` — so this
-              became a VERTICAL scroll container too, with zero scrollable height.
-              An upward swipe was handed to a container that had nowhere to go and
-              stopped there instead of chaining to the page.
+              1. NO `data-lenis-prevent`. Lenis ships a stylesheet (imported by
+                 globals.css) containing:
 
-              `touch-action: pan-x pinch-zoom` then says explicitly that this
-              element handles horizontal panning only, so vertical gestures go
-              straight to the page. `pinch-zoom` is kept deliberately — restricting
-              touch-action must never cost the visitor the ability to zoom.
+                     .lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+
+                 That is the shorthand, so it lands on BOTH axes, and
+                 `overscroll-behavior-y: contain` means "never chain scrolling to
+                 the parent" — a vertical swipe in here was forbidden from reaching
+                 the page. At (0,2,0) it also outranks any single-class utility, so
+                 it could not be overridden by adding `overscroll-y-auto`. The
+                 attribute bought nothing anyway: Lenis runs on native touch
+                 (`syncTouch: false`), so it never handles these gestures.
+
+              2. `overflow-y-hidden`. Setting only `overflow-x: auto` does not
+                 leave the other axis alone — per the CSS Overflow spec, when one
+                 axis is non-`visible` and the other is `visible`, the visible one
+                 computes to `auto`. This was silently a vertical scroll container
+                 with zero scrollable height, swallowing upward swipes.
+
+              3. `touch-action: pan-x pinch-zoom`. States up front that this
+                 element handles horizontal panning only, so vertical gestures go
+                 to the page without having to fail here first. `pinch-zoom` is
+                 kept deliberately — restricting touch-action must never cost the
+                 visitor the ability to zoom into a photo.
+
+              `overscroll-x-contain` stays: a horizontal swipe running off the end
+              should not chain sideways into browser back-navigation.
             */
-            className="mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-5 pb-1 [scrollbar-width:none] [touch-action:pan-x_pinch-zoom] [&::-webkit-scrollbar]:hidden"
+            className="mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto px-5 pb-1 [scrollbar-width:none] [touch-action:pan-x_pinch-zoom] [&::-webkit-scrollbar]:hidden"
           >
             {AMBIENCE_GALLERY.map((item) => (
               <figure key={item.src} className="w-[58vw] shrink-0 snap-start">
