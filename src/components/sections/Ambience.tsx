@@ -281,23 +281,39 @@ export function Ambience() {
               `overscroll-x-contain` stays: a horizontal swipe running off the end
               should not chain sideways into browser back-navigation.
 
-              Snap is `proximity`, not `mandatory`. Mandatory forces a landing on
-              every gesture, so a short or diagonal swipe gets yanked to a card
-              instead of being allowed to drift — which reads as the strip fighting
-              your finger. Proximity keeps the tidy alignment on a deliberate
-              horizontal swipe and stays out of the way otherwise.
+              ── Why the padding is 18vw and not 5 ──────────────────────────────
+
+              This is a CENTRED carousel: the active card sits in the middle of the
+              screen with an equal sliver of its neighbours either side. Three
+              things have to agree for that, and it breaks if any one of them is
+              off:
+
+                card      64vw   `snap-center`, so it centres in the scrollport
+                padding   18vw   = (100 - 64) / 2, the leftover split evenly
+                gap        4     eats into each sliver equally
+
+              The padding is what lets the FIRST and LAST cards reach the middle at
+              all — without it they can only ever sit flush against an edge, which
+              is what `snap-start` with `px-5` was doing.
+
+              Snap is back to `mandatory` here. Proximity is gentler, but it lets a
+              card rest half-centred, which defeats the whole point of a centred
+              carousel. The heaviness that made proximity necessary before was the
+              trapped vertical swipe, and that is fixed above.
             */
-            className="mt-7 flex snap-x snap-proximity gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto px-[18vw] pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {AMBIENCE_GALLERY.map((item) => (
-              <figure key={item.src} className="w-[58vw] shrink-0 snap-start">
+              // `snap-center`, not `snap-start` — see the geometry note above.
+              <figure key={item.src} className="w-[64vw] shrink-0 snap-center">
                 <div className="relative aspect-2/3 overflow-hidden rounded-2xl bg-navy/5">
                   <Image
                     src={item.src}
                     alt={item.alt}
                     fill
                     loading="lazy"
-                    sizes="62vw"
+                    /* Kept in step with the card's `w-[64vw]` above. */
+                    sizes="64vw"
                     className="object-cover"
                   />
                 </div>

@@ -87,6 +87,20 @@ export const BRAND = {
    * it from the brand source.
    */
   logo: { src: "/assets/brand/zoi-logo.png", width: 3130, height: 2700 },
+  /**
+   * The bare Z, exactly #0b0f1a on transparent (4-channel RGBA, verified by
+   * sampling: 949 of 1369 opaque pixels are that value on the nose).
+   *
+   * Used as a CSS MASK rather than an <Image>. Only the alpha channel matters —
+   * the colour is painted from the `navy` palette token underneath it, because
+   * next/image's lossy WebP re-encode measurably shifts a flat mark like this
+   * (~#070d15 across 69 shades). See the note at its usage in Nav.tsx.
+   *
+   * Its swash tail sweeps to the RIGHT, so the nav flips it horizontally to sweep
+   * left instead — the tail then leads the eye toward the links on the other
+   * panel rather than off the edge of the screen.
+   */
+  z: { src: "/assets/brand/z.png", width: 1918, height: 1504 },
 } as const;
 
 /**

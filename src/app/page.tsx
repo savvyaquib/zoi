@@ -2,6 +2,7 @@ import { SmoothScroll } from "@/components/SmoothScroll";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { PreloadProvider } from "@/hooks/usePreloader";
 import { Loading } from "@/components/sections/Loading";
+import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { BelowFold } from "@/components/BelowFold";
@@ -11,6 +12,7 @@ export default function Home() {
     <SmoothScroll>
       <PreloadProvider>
         <Loading />
+        <Nav />
         <ScrollProgress />
         <main>
           {/*

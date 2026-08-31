@@ -7,9 +7,49 @@ import { HERO_STILLS, HERO_VIDEO } from "@/lib/assets";
 import { usePreload } from "@/hooks/usePreloader";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+/**
+ * The opening. The first still arrives as a small rectangle and grows to fill the
+ * screen before the cut cycle starts.
+ *
+ * Measured off the reference: the card holds at roughly 38% for about two fifths
+ * of a second, then expands over another two thirds. `power3.inOut` matches the
+ * shape of it — slow to leave, fastest through the middle, settling rather than
+ * arriving hard.
+ *
+ * Only the FIRST frame does this. The other seven are already at scale 1 behind
+ * it, so the cut at OPEN_TOTAL + 0.5s lands on a full-bleed still as before.
+ *
+ * It reads as a rectangle rather than a square because the square frame clips a
+ * section-shaped inner (see the two-box note below) — at 0.38 you see the inner's
+ * rectangle with the section's navy around it.
+ */
+/*
+  Zero, and the pause you actually see is still about half a second.
+
+  The card is visible well before this timeline starts. The loader's exit runs
+  0.4s delay -> 0.3s fade -> 0.8s wipe, and `markRevealed()` only fires at the end
+  of all of it. The wipe uncovers the middle of the screen — where the card sits —
+  around halfway through, so roughly the last 0.4s of the wipe already shows the
+  card sitting still:
+
+    loader wipe   0.6s ─────────────────────► 1.4s   markRevealed
+    card visible          ~1.0s ─────────────► 1.4s   (~0.4s, static)
+    this hold                                 1.4s +  OPEN_HOLD
+    zoom starts
+
+  So any hold added here lands ON TOP of that. At the previous 0.35 the card sat
+  still for roughly three quarters of a second; at 0 it is the wipe tail alone.
+  If it ever needs to feel longer, raise this — but measure from when the card
+  first appears, not from when this timeline starts.
+*/
+const OPEN_HOLD = 0;
+const OPEN_SCALE = 0.38;
+const OPEN_DURATION = 0.85;
+const OPEN_TOTAL = OPEN_HOLD + OPEN_DURATION;
+
 /** Seconds each still holds before the cut. 8 x 0.5 = the 4s cycle. */
 const STEP = 0.5;
-const CYCLE_TOTAL = STEP * HERO_STILLS.length;
+const CYCLE_TOTAL = OPEN_TOTAL + STEP * HERO_STILLS.length;
 
 /**
  * How far a still pushes in across its own hold.
@@ -247,6 +287,8 @@ export function Hero() {
     // for none.
     if (reducedMotion) {
       const { scale, fill, centers } = measure();
+      // No intro to hide it behind, so the video (its poster) is simply present.
+      gsap.set(video, { opacity: 1 });
       gsap.set(frames, { autoAlpha: 0 });
       gsap.set(inners, { scale: 1 });
       for (let j = 0; j < SLOT_COUNT; j++) {
@@ -292,8 +334,26 @@ export function Hero() {
         a constant drift rather than something that eases to a stop, and the cut
         lands while it is still moving.
       */
+      /*
+        ── Phase 0 — the opening card.
+
+        The first frame starts small and grows to full bleed. Everything after it
+        is offset by OPEN_TOTAL so the cut cycle begins the instant this lands.
+      */
+      tl.set(frames[0], { scale: OPEN_SCALE }, 0);
+      tl.to(
+        frames[0],
+        {
+          scale: 1,
+          duration: OPEN_DURATION,
+          ease: "power3.inOut",
+          force3D: true,
+        },
+        OPEN_HOLD
+      );
+
       HERO_STILLS.forEach((_, i) => {
-        const at = i * STEP;
+        const at = OPEN_TOTAL + i * STEP;
         if (i > 0) {
           tl.set(frames[i - 1], { autoAlpha: 0 }, at);
           tl.set(frames[i], { autoAlpha: 1 }, at);
@@ -308,6 +368,18 @@ export function Hero() {
 
       // Promote the travelling frames before they move, not as they start.
       tl.set(frames, { willChange: "transform" }, CYCLE_TOTAL - PROMOTE_LEAD);
+
+      /*
+        Bring the video up from the inline `opacity: 0` it renders with. This
+        happens while the stills still cover the whole screen, so the fade itself
+        is never visible — by the time the collapse uncovers it, it is simply
+        there and already playing.
+      */
+      tl.to(
+        video,
+        { opacity: 1, duration: 0.3, ease: "none" },
+        CYCLE_TOTAL - VIDEO_LEAD
+      );
 
       tl.call(startVideo, undefined, CYCLE_TOTAL - VIDEO_LEAD);
 
@@ -388,12 +460,26 @@ export function Hero() {
         inside is `absolute inset-0`, so making it static would send those children
         to the next positioned ancestor and stretch the video to that box's height.
       */
-      className="relative h-[50svh] w-full overflow-hidden bg-navy md:h-dvh"
+      /*
+        White, not navy. The opening card is smaller than the screen, so whatever
+        this section's ground is becomes the field the card sits on — and the brief
+        is a white field, matching the loader handing over to a clean page.
+      */
+      className="relative h-[50svh] w-full overflow-hidden bg-white md:h-dvh"
     >
       {/*
         Phase 3. Sits underneath the stills for the whole intro and is absolutely
         positioned inside a fixed-height section, so it reserves its own space and
         contributes zero CLS. `src` is assigned in JS — see the effect above.
+
+        Starts at `opacity: 0`, inline, so it is invisible from first paint. It is
+        full-bleed and sits behind everything, so without this its poster frame
+        would be the backdrop the opening card grows against — the video showing
+        through before the intro has even begun. It is faded up later, while the
+        stills still cover the screen, so the reveal itself is never seen.
+
+        Plain `opacity` rather than `autoAlpha` deliberately: `visibility: hidden`
+        risks the browser deprioritising a video the preloader is gating on.
       */}
       <video
         ref={videoRef}
@@ -405,6 +491,7 @@ export function Hero() {
         preload="auto"
         aria-hidden="true"
         tabIndex={-1}
+        style={{ opacity: 0 }}
       />
 
       {/*
@@ -420,7 +507,23 @@ export function Hero() {
               frameRefs.current[i] = el;
             }}
             className="col-start-1 row-start-1 grid h-[max(100vw,50svh)] w-[max(100vw,50svh)] grid-cols-1 grid-rows-1 place-items-center overflow-hidden md:h-[max(100vw,100dvh)] md:w-[max(100vw,100dvh)]"
-            style={{ opacity: i === 0 ? 1 : 0 }}
+            /*
+              The first frame is ALSO scaled down inline, not just in the timeline.
+
+              The loader wipes upward for 0.8s and the hero is visible underneath
+              it the whole time. Without this the first still paints full-bleed,
+              then GSAP snaps it to 0.38 the instant `revealed` fires — you see the
+              image, then the video behind it, then the image again. Matching the
+              timeline's opening value here means the card is already small on the
+              very first paint and the zoom is the only movement.
+
+              A scale is safe to hand GSAP this way — unlike a percentage translate,
+              it survives the computed-matrix round trip unambiguously.
+            */
+            style={{
+              opacity: i === 0 ? 1 : 0,
+              transform: i === 0 ? `scale(${OPEN_SCALE})` : undefined,
+            }}
           >
             {/* Section-shaped, so the full-bleed crop is the section's, not the
                 square's. Carries both the push-in and the fill-out. */}
