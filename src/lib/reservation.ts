@@ -56,14 +56,54 @@ function toValue(minutes: number): string {
  * browser, and even with `step=900` a visitor can still type 7:16 and only find
  * out it is invalid on submit. A select cannot express an unbookable time at all.
  */
-export const TIME_SLOTS: ReadonlyArray<{ value: string; label: string }> =
-  Array.from(
-    { length: Math.floor((LAST_SLOT - FIRST_SLOT) / SLOT_STEP) + 1 },
-    (_, i) => {
-      const minutes = FIRST_SLOT + i * SLOT_STEP;
-      return { value: toValue(minutes), label: toLabel(minutes) };
-    }
+export const TIME_SLOTS: ReadonlyArray<{
+  value: string;
+  label: string;
+  /** Meridiem-free, for chips that already sit under a Lunch/Evening/Dinner heading. */
+  short: string;
+}> = Array.from(
+  { length: Math.floor((LAST_SLOT - FIRST_SLOT) / SLOT_STEP) + 1 },
+  (_, i) => {
+    const minutes = FIRST_SLOT + i * SLOT_STEP;
+    const label = toLabel(minutes);
+    return { value: toValue(minutes), label, short: label.replace(/ [AP]M$/, "") };
+  }
+);
+
+/**
+ * The same slots, cut into service periods.
+ *
+ * Forty-four times in one list is a scroll-and-hunt: the visitor has to read the
+ * whole thing to find the one they want. Split three ways it is ~15 per view,
+ * which is scannable at a glance, and "Dinner" is a word people already think in
+ * — they pick the period first and the time second, which is how they decide
+ * anyway.
+ *
+ * Boundaries are exclusive upper hours, so the groups tile the window with no
+ * slot in two places and none missed.
+ */
+const GROUP_BOUNDS = [
+  { label: "Lunch", untilHour: 16 },
+  { label: "Evening", untilHour: 20 },
+  { label: "Dinner", untilHour: 24 },
+] as const;
+
+export const TIME_GROUPS = GROUP_BOUNDS.map((group, i) => ({
+  label: group.label,
+  slots: TIME_SLOTS.filter((slot) => {
+    const hour = Number(slot.value.slice(0, 2));
+    const from = i === 0 ? 0 : GROUP_BOUNDS[i - 1].untilHour;
+    return hour >= from && hour < group.untilHour;
+  }),
+}));
+
+/** Which period a stored value belongs to, so the picker opens on the right one. */
+export function groupForTime(value: string): string {
+  return (
+    TIME_GROUPS.find((g) => g.slots.some((s) => s.value === value))?.label ??
+    TIME_GROUPS[0].label
   );
+}
 
 /** "2026-09-12" -> "Sat, 12 Sep 2026". Falls back to the raw value if unparsable. */
 export function formatDate(iso: string): string {

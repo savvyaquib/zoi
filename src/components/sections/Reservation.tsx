@@ -5,8 +5,10 @@ import Image from "next/image";
 import { RESERVATION_IMAGE, VENUE } from "@/lib/assets";
 import {
   BUTTON_MOTION,
-  TIME_SLOTS,
+  TIME_GROUPS,
   buildWhatsAppUrl,
+  formatTime,
+  groupForTime,
   type ReservationDetails,
 } from "@/lib/reservation";
 
@@ -85,6 +87,17 @@ export function Reservation() {
   const [values, setValues] = useState<ReservationDetails>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [sentTo, setSentTo] = useState<string | null>(null);
+
+  /**
+   * Which service period the chip grid is showing.
+   *
+   * Seeded from the current value so the picker opens on the period the visitor
+   * already chose rather than resetting to Lunch — relevant after a failed submit
+   * sends focus back up the form.
+   */
+  const [period, setPeriod] = useState(() => groupForTime(EMPTY.time));
+  const activeSlots =
+    TIME_GROUPS.find((g) => g.label === period)?.slots ?? TIME_GROUPS[0].slots;
 
   const field = (name: keyof ReservationDetails) => `${uid}-${name}`;
   const errorId = (name: keyof ReservationDetails) => `${uid}-${name}-error`;
@@ -215,36 +228,6 @@ export function Reservation() {
               </div>
 
               <div>
-                <label htmlFor={field("time")} className={LABEL}>
-                  Time
-                </label>
-                {/*
-                  A select, not <input type="time"> — quarter-hour slots only, and
-                  no way to express a time the kitchen does not seat. See the note
-                  on TIME_SLOTS in lib/reservation.ts.
-                */}
-                <select
-                  id={field("time")}
-                  name="time"
-                  value={values.time}
-                  onChange={(e) => set("time", e.target.value)}
-                  aria-invalid={Boolean(errors.time)}
-                  aria-describedby={errors.time ? errorId("time") : undefined}
-                  className={FIELD}
-                >
-                  <option value="" className="bg-navy">
-                    Select a time
-                  </option>
-                  {TIME_SLOTS.map((slot) => (
-                    <option key={slot.value} value={slot.value} className="bg-navy">
-                      {slot.label}
-                    </option>
-                  ))}
-                </select>
-                {fieldError("time")}
-              </div>
-
-              <div>
                 <label htmlFor={field("guests")} className={LABEL}>
                   Guests
                 </label>
@@ -282,6 +265,102 @@ export function Reservation() {
                 </select>
               </div>
             </div>
+
+            {/*
+              Time — a two-step picker, not a 44-option dropdown.
+
+              Pick the period, then the slot. Every time is two taps and never
+              more than about fifteen choices on screen at once, instead of one
+              list you have to read end to end.
+
+              Built on real radio inputs rather than styled buttons: a radiogroup
+              gives arrow-key navigation, the selected state, and the group's name
+              to a screen reader for free. The inputs are `sr-only` and the chip is
+              the `peer-checked` sibling, so none of that is lost to make it look
+              like this.
+            */}
+            <fieldset className="border-0 p-0">
+              {/*
+                A real <legend> names the group for assistive tech, but legends do
+                not lay out reliably inside flex, so it is visually hidden and the
+                visible row below carries the label plus the chosen slot. The
+                chips are short-form ("7:30"), so this is where the full time is
+                read back.
+              */}
+              <legend className="sr-only">Time</legend>
+              <div className="mb-2 flex items-baseline justify-between gap-3">
+                <span aria-hidden="true" className={`${LABEL} mb-0`}>
+                  Time
+                </span>
+                <span className="font-sans text-xs text-orange">
+                  {values.time ? formatTime(values.time) : ""}
+                </span>
+              </div>
+
+              {/*
+                Toggle buttons with `aria-pressed`, NOT a tablist. A tab must own a
+                tabpanel via `aria-controls`; these only filter which radios show,
+                so calling them tabs would have a screen reader announcing a panel
+                that does not exist.
+              */}
+              <div
+                role="group"
+                aria-label="Service period"
+                className="inline-flex gap-1 rounded-full border border-white/12 bg-white/[0.04] p-1"
+              >
+                {TIME_GROUPS.map((group) => {
+                  const active = group.label === period;
+                  return (
+                    <button
+                      key={group.label}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setPeriod(group.label)}
+                      className={`rounded-full px-4 py-1.5 font-sans text-xs tracking-[0.08em] uppercase transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none ${
+                        active
+                          ? "bg-orange text-navy"
+                          : "text-white/55 hover:text-white"
+                      }`}
+                    >
+                      {group.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div
+                role="radiogroup"
+                aria-label="Time"
+                aria-invalid={Boolean(errors.time)}
+                aria-describedby={errors.time ? errorId("time") : undefined}
+                className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8"
+              >
+                {activeSlots.map((slot, i) => (
+                  <label key={slot.value} className="block cursor-pointer">
+                    <input
+                      /*
+                        The first radio carries the field id so the submit handler's
+                        `getElementById(field("time"))` still finds something to
+                        focus. Losing the <select> would otherwise mean an invalid
+                        submit silently focuses nothing.
+                      */
+                      id={i === 0 ? field("time") : undefined}
+                      type="radio"
+                      name={field("time")}
+                      value={slot.value}
+                      checked={values.time === slot.value}
+                      onChange={() => set("time", slot.value)}
+                      className="peer sr-only"
+                    />
+                    {/* Meridiem dropped — the period above already says which half. */}
+                    <span className="block rounded-lg border border-white/12 bg-white/[0.05] py-2.5 text-center font-sans text-sm text-white/80 transition-colors duration-150 ease-out hover:border-white/30 peer-checked:border-orange peer-checked:bg-orange peer-checked:font-medium peer-checked:text-navy peer-focus-visible:ring-2 peer-focus-visible:ring-orange">
+                      {slot.short}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {fieldError("time")}
+            </fieldset>
 
             <div>
               <label htmlFor={field("requests")} className={LABEL}>
