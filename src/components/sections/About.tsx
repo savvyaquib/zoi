@@ -26,28 +26,28 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 const SLIDES = [
   {
     word: "ROOTED",
-    line: "Jharkhand's harvest, on every plate.",
+    line: "Locally sourced ingredients from Jharkhand's harvest, on every plate.",
     bg: "bg-white",
     wordColor: "text-navy",
     lineColor: "text-navy/65",
   },
   {
     word: "CRAFTED",
-    line: "Each dish built by hand, to order.",
+    line: "North Indian, Asian, and Continental dishes — each built by hand, to order.",
     bg: "bg-navy",
     wordColor: "text-orange",
     lineColor: "text-white/70",
   },
   {
     word: "WARM",
-    line: "Low light, long dinners, no rush.",
+    line: "Low light, long dinners, no rush — fine dining the way Ranchi deserves it.",
     bg: "bg-blue",
     wordColor: "text-white",
     lineColor: "text-white/80",
   },
   {
     word: "OURS",
-    line: "Ranchi's table, whenever you arrive.",
+    line: "Ranchi's table at JD Hi Street Mall, Hindpiri — whenever you arrive.",
     bg: "bg-orange",
     wordColor: "text-navy",
     lineColor: "text-navy/75",

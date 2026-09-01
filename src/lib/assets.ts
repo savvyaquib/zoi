@@ -7,22 +7,103 @@
  */
 
 /**
+ * Canonical origin for the site.
+ *
+ * Every absolute URL the site emits — canonical, og:url, og:image, twitter:image,
+ * the JSON-LD `url` and `@id`, robots.txt and sitemap.xml — derives from this one
+ * constant, so the production host is stated in exactly one place.
+ *
+ * It must be the host visitors actually reach, NOT a Vercel preview URL: a preview
+ * hostname changes whenever the project is renamed, and every citation, Business
+ * Profile link and share card pointing at the old one 404s silently.
+ */
+export const SITE_URL = "https://www.zoiworld.com";
+
+/**
  * The 8 hero stills, cycled with hard cuts during the intro.
  *
  * All eight are unique (MD5-verified), 2400x1600, ~700 KB-1 MB each. They are
  * rendered through next/image, so what actually ships is an AVIF/WebP derivative
  * a fraction of that size.
+ *
+ * `alt` describes what is actually in each frame — these are the only photographs
+ * of the room on the site, so an empty alt forfeits image search entirely for the
+ * one thing a fine-dining visitor searches for.
+ *
+ * Written from the frames themselves, not from the filenames. All eight are
+ * INTERIOR shots: there is no food, no chef and no diner in any of them, so none
+ * of them says otherwise. Location words appear where they are true; cuisine words
+ * do not, because a photograph of an empty room is not evidence of a menu — that
+ * claim belongs in the title, the description and `servesCuisine`, where it is
+ * being made already.
  */
 export const HERO_STILLS = [
-  { src: "/assets/hero/hero-01.jpg", width: 2400, height: 1600 },
-  { src: "/assets/hero/hero-02.jpg", width: 2400, height: 1599 },
-  { src: "/assets/hero/hero-03.jpg", width: 2400, height: 1600 },
-  { src: "/assets/hero/hero-04.jpg", width: 2400, height: 1600 },
-  { src: "/assets/hero/hero-05.jpg", width: 2400, height: 1600 },
-  { src: "/assets/hero/hero-06.jpg", width: 2400, height: 1599 },
-  { src: "/assets/hero/hero-07.jpg", width: 2400, height: 1599 },
-  { src: "/assets/hero/hero-08.jpg", width: 2400, height: 1600 },
+  {
+    src: "/assets/hero/hero-01.jpg",
+    width: 2400,
+    height: 1600,
+    alt: "The main dining room at Zoi, Ranchi — cane-back chairs and fringed rattan pendant lights beneath an arched opening",
+  },
+  {
+    src: "/assets/hero/hero-02.jpg",
+    width: 2400,
+    height: 1599,
+    alt: "The long communal table at Zoi, laid for dinner with a runner of greenery down its centre",
+  },
+  {
+    src: "/assets/hero/hero-03.jpg",
+    width: 2400,
+    height: 1600,
+    alt: "Marble-top tables and cane chairs in the dining room at Zoi, Hindpiri, seen through the room's foliage",
+  },
+  {
+    src: "/assets/hero/hero-04.jpg",
+    width: 2400,
+    height: 1600,
+    alt: "Sculptural pendant lights above laid tables in the upper dining room at Zoi, Ranchi",
+  },
+  {
+    src: "/assets/hero/hero-05.jpg",
+    width: 2400,
+    height: 1600,
+    alt: "The bar at Zoi, Ranchi — glassware hung above a curved counter with a row of cane stools",
+  },
+  {
+    src: "/assets/hero/hero-06.jpg",
+    width: 2400,
+    height: 1599,
+    alt: "Curved banquette booths at Zoi, lit by table lamps beneath tall windows",
+  },
+  {
+    src: "/assets/hero/hero-07.jpg",
+    width: 2400,
+    height: 1599,
+    alt: "The illuminated Zoi wordmark at reception, between the arched doorways at JD Hi Street Mall, Hindpiri",
+  },
+  {
+    src: "/assets/hero/hero-08.jpg",
+    width: 2400,
+    height: 1600,
+    alt: "Arched doorways and potted palms along the entrance walkway into Zoi, Ranchi",
+  },
 ] as const;
+
+/**
+ * The share card used by Open Graph and Twitter.
+ *
+ * Points at a real file that exists in the repo. The reception frame is the one
+ * brand-forward still — the wordmark sits dead centre, so it survives the centre
+ * crop every platform applies to reach its own aspect ratio.
+ *
+ * A purpose-built 1200x630 export would be better still; this is the honest
+ * stopgap, and it is emphatically better than the 404 it replaces.
+ */
+export const OG_IMAGE = {
+  src: "/assets/hero/hero-07.jpg",
+  width: 2400,
+  height: 1599,
+  alt: "The illuminated Zoi wordmark at the entrance to the restaurant in Ranchi",
+} as const;
 
 /**
  * Hero loop video. Exactly ONE of these is ever fetched — the source is chosen in

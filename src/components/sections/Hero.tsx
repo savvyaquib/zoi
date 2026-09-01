@@ -468,6 +468,23 @@ export function Hero() {
       className="relative h-[50svh] w-full overflow-hidden bg-white md:h-dvh"
     >
       {/*
+        The document's only h1, and the one element that states what this page is.
+
+        Visually hidden rather than rendered: the design's opening frame is a
+        photograph with no type on it, and inventing a headline to satisfy a
+        crawler would change the work. `sr-only` keeps it in the accessibility
+        tree and in the markup — it is NOT `display: none`, which would hide it
+        from both.
+
+        It sits first inside the section so the heading precedes the images it
+        introduces, which is also the order a screen reader announces them.
+      */}
+      <h1 className="sr-only">
+        Zoi — Fine Dining Restaurant in Hindpiri, Ranchi | Asian, Continental
+        &amp; North Indian Cuisine
+      </h1>
+
+      {/*
         Phase 3. Sits underneath the stills for the whole intro and is absolutely
         positioned inside a fixed-height section, so it reserves its own space and
         contributes zero CLS. `src` is assigned in JS — see the effect above.
@@ -536,7 +553,7 @@ export function Hero() {
               <Image
                 ref={(el) => registerStill(i, el)}
                 src={still.src}
-                alt=""
+                alt={still.alt}
                 fill
                 sizes="100vw"
                 priority={i === 0}
