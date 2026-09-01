@@ -227,7 +227,7 @@ export function Loading() {
         <div ref={logoRef} className="w-[130px] md:w-[180px]">
           <Image
             src={BRAND.logo.src}
-            alt="Zoi"
+            alt="Zoi restaurant logo — fine dining in Hindpiri, Ranchi"
             width={BRAND.logo.width}
             height={BRAND.logo.height}
             priority

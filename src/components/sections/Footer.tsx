@@ -76,7 +76,7 @@ export function Footer() {
           <div className="md:col-span-1">
             <Image
               src={BRAND.logo.src}
-              alt="Zoi"
+              alt="Zoi restaurant Ranchi"
               width={BRAND.logo.width}
               height={BRAND.logo.height}
               loading="lazy"
