@@ -172,7 +172,7 @@ export function TimeDial({
           {selectedMinute === null ? "--" : String(selectedMinute).padStart(2, "0")}
         </button>
         {/* Static, not a toggle: the venue never opens before noon. */}
-        <span className="ml-1.5 font-sans text-sm tracking-[0.18em] text-white/45">PM</span>
+        <span className="ml-1.5 font-sans text-sm tracking-[0.18em] text-white/55">PM</span>
       </div>
 
       <div
@@ -290,7 +290,7 @@ export function TimeDial({
         </div>
       </div>
 
-      <p className="mt-4 text-center font-sans text-xs text-white/40">
+      <p className="mt-4 text-center font-sans text-xs text-white/55">
         {stage === "hour" ? "Choose an hour" : "Choose the minutes"}
         <span className="mx-2 text-white/20">·</span>
         Last seating 10:45 PM

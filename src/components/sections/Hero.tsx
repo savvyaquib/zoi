@@ -164,6 +164,7 @@ export function Hero() {
   const frameRefs = useRef<(HTMLDivElement | null)[]>([]);
   const innerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const coverRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
   const videoStarted = useRef(false);
 
@@ -220,9 +221,10 @@ export function Hero() {
 
     const section = sectionRef.current;
     const video = videoRef.current;
+    const cover = coverRef.current;
     const frames = frameRefs.current.filter(Boolean) as HTMLDivElement[];
     const inners = innerRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (!section || frames.length !== HERO_STILLS.length) return;
+    if (!section || !cover || frames.length !== HERO_STILLS.length) return;
 
     hasRun.current = true;
 
@@ -287,8 +289,9 @@ export function Hero() {
     // for none.
     if (reducedMotion) {
       const { scale, fill, centers } = measure();
-      // No intro to hide it behind, so the video (its poster) is simply present.
-      gsap.set(video, { opacity: 1 });
+      // No intro to hide it behind, so the curtain comes straight off and the
+      // video (its poster) is simply present.
+      gsap.set(cover, { opacity: 0 });
       gsap.set(frames, { autoAlpha: 0 });
       gsap.set(inners, { scale: 1 });
       for (let j = 0; j < SLOT_COUNT; j++) {
@@ -370,14 +373,18 @@ export function Hero() {
       tl.set(frames, { willChange: "transform" }, CYCLE_TOTAL - PROMOTE_LEAD);
 
       /*
-        Bring the video up from the inline `opacity: 0` it renders with. This
-        happens while the stills still cover the whole screen, so the fade itself
-        is never visible — by the time the collapse uncovers it, it is simply
-        there and already playing.
+        Lift the curtain off the video. This happens while the stills still cover
+        the whole screen, so the fade itself is never visible — by the time the
+        collapse uncovers it, the video is simply there and already playing.
+
+        Fading the COVER out rather than the video in is what keeps the video an
+        LCP candidate from first paint; see the note on the elements themselves.
+        The two are visually identical because the cover is the section's own
+        white.
       */
       tl.to(
-        video,
-        { opacity: 1, duration: 0.3, ease: "none" },
+        cover,
+        { opacity: 0, duration: 0.3, ease: "none" },
         CYCLE_TOTAL - VIDEO_LEAD
       );
 
@@ -508,7 +515,41 @@ export function Hero() {
         preload="auto"
         aria-hidden="true"
         tabIndex={-1}
-        style={{ opacity: 0 }}
+        /*
+          Visible from the first paint, and hidden by the cover below instead.
+
+          It used to render at `opacity: 0` and fade up 4.45s into the intro. That
+          one line was the site's Largest Contentful Paint: this element is
+          full-bleed, so it is the largest contentful thing on the page, and an
+          element at zero opacity is not an LCP candidate at all — it only becomes
+          one when it turns visible. LCP was therefore pinned to the end of the
+          intro, measured at 5.2s against a 5.65s prediction from the timeline
+          constants alone.
+
+          Painting it immediately makes its poster (59 KB WebP) the LCP candidate
+          at first paint instead. The pixels were always downloaded and decoded
+          this early — the preloader gates the loader on `loadeddata` — they were
+          just being withheld from the compositor for no reason other than how the
+          reveal happened to be written.
+        */
+        style={{ opacity: 1 }}
+      />
+
+      {/*
+        The curtain that actually hides the video during the intro.
+
+        Opaque, and exactly the section's own `bg-white`, so this is pixel-for-pixel
+        what the visitor saw before: white field, stills over it, then the video.
+        The reveal is now this fading OUT rather than the video fading in, which is
+        visually identical and costs nothing.
+
+        A solid background colour is not a contentful paint, so this element never
+        becomes an LCP candidate itself — it only stops being one for the video.
+      */}
+      <div
+        ref={coverRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-white"
       />
 
       {/*
@@ -557,7 +598,22 @@ export function Hero() {
                 fill
                 sizes="100vw"
                 priority={i === 0}
-                loading={i === 0 ? undefined : "eager"}
+                /*
+                  Only the first still is eager.
+
+                  `eager` on all eight made Next emit a <link rel="preload"> for
+                  each, so 1.5 MB (2.3 MB on a retina viewport) of stills raced the
+                  2.58 MB video and the LCP poster at the highest priority the
+                  browser has — while stills 2-8 are not on screen until 0.85s,
+                  1.35s, 1.85s and so on. Preloading everything prioritises
+                  nothing.
+
+                  They still load immediately: these sit in the viewport, so the
+                  browser fetches them at once regardless, just beneath the things
+                  actually being painted. The loader still gates on all eight
+                  decoding, so none of them can be late to its own cut.
+                */
+                loading={i === 0 ? undefined : "lazy"}
                 className="object-cover"
               />
             </div>

@@ -127,7 +127,7 @@ export function TimeField({
           invalid ? "border-orange" : ""
         }`}
       >
-        <span className={value ? "text-white" : "text-white/35"}>
+        <span className={value ? "text-white" : "text-white/55"}>
           {value ? formatTime(value) : "Select a time"}
         </span>
         <ClockIcon />

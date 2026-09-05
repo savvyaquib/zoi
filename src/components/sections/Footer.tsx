@@ -159,7 +159,7 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="mt-16 border-t border-white/10 pt-6 font-sans text-xs text-white/40">
+        <p className="mt-16 border-t border-white/10 pt-6 font-sans text-xs text-white/55">
           © 2026 Zoi Restaurant. All rights reserved. · Ranchi
         </p>
       </div>

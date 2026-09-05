@@ -73,7 +73,7 @@ function validate(values: ReservationDetails): Errors {
 const FIELD =
   "w-full rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3.5 font-sans " +
   "text-base text-white transition-colors duration-150 ease-out " +
-  "placeholder:text-white/35 hover:border-white/25 focus:border-orange " +
+  "placeholder:text-white/55 hover:border-white/25 focus:border-orange " +
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-orange " +
   "focus-visible:ring-offset-2 focus-visible:ring-offset-navy [color-scheme:dark]";
 
