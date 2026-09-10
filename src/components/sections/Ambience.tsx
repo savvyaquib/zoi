@@ -243,11 +243,13 @@ export function Ambience() {
           stacked under it. `relative` is what lets it paint above the video —
           both are in flow, and a positioned later sibling wins.
 
-          The overlap is deliberately small (`-mt-6`, 24px): enough that the
+          The overlap is deliberately small (`-mt-4`, 16px): enough that the
           corners visibly cut into the video, not enough to cost it any real
-          picture.
+          picture. The radius is held to 1.75rem for the same reason — a bigger
+          curve sweeps across more of the video at the corners and reads as more
+          overlap than the margin actually gives, which is what 3rem did.
         */}
-        <div className="relative -mt-6 rounded-t-[3rem] bg-white py-10 text-navy">
+        <div className="relative -mt-4 rounded-t-[1.75rem] bg-white py-10 text-navy">
           {/* Wraps on a phone by design — one line here would be unreadably small. */}
           <h2 className="max-w-xl px-5 font-display text-3xl leading-tight">
             {headlineText}
