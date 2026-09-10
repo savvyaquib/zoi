@@ -237,7 +237,17 @@ export function Ambience() {
           tabIndex={-1}
         />
 
-        <div className="bg-white py-10 text-navy">
+        {/*
+          Sits a little over the bottom of the video with rounded top corners, so
+          the panel reads as a card laid on top of the loop rather than a block
+          stacked under it. `relative` is what lets it paint above the video —
+          both are in flow, and a positioned later sibling wins.
+
+          The overlap is deliberately small (`-mt-6`, 24px): enough that the
+          corners visibly cut into the video, not enough to cost it any real
+          picture.
+        */}
+        <div className="relative -mt-6 rounded-t-[3rem] bg-white py-10 text-navy">
           {/* Wraps on a phone by design — one line here would be unreadably small. */}
           <h2 className="max-w-xl px-5 font-display text-3xl leading-tight">
             {headlineText}
@@ -351,10 +361,31 @@ export function Ambience() {
           tabIndex={-1}
         />
 
-        {/* Beats 2 + 3 — the panel wipes in from the right, carrying everything. */}
+        {/*
+          Beats 2 + 3 — the panel wipes in from the right, carrying everything.
+
+          ── The rounded leading edge, and why it is done with geometry ────────
+
+          The left edge is rounded while it travels and square once it lands. The
+          obvious way — tween border-radius to 0 as the wipe finishes — repaints
+          a full-screen surface on every scrubbed frame, and CLAUDE.md allows only
+          transform and opacity to animate. So nothing here animates at all:
+
+            the panel is 3rem WIDER than the stage and sits 3rem to the LEFT of it
+            (`-left-12` + `w-[calc(100%+3rem)]`), with a 3rem radius on that edge.
+
+          While it slides, the curve is on screen. When `xPercent` reaches 0 the
+          left 3rem — which is exactly the curve — sits past the stage's
+          `overflow-hidden` edge, so what remains visible is a square edge. Same
+          transform as before; the corner simply drives itself off the screen.
+
+          `pl-12` on the panel puts the headline and the track back where they
+          were. It lives on the panel, not the track, so `track.scrollWidth` and
+          the overflow calculation below are unchanged.
+        */}
         <div
           ref={panelRef}
-          className="absolute inset-0 z-10 flex flex-col justify-center gap-[6svh] bg-white text-navy will-change-transform"
+          className="absolute inset-y-0 -left-12 z-10 flex w-[calc(100%+3rem)] flex-col justify-center gap-[6svh] rounded-l-[3rem] bg-white pl-12 text-navy will-change-transform"
         >
           {/*
             One line, always. `max-w-2xl` was what forced the wrap; the fluid size
