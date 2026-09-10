@@ -12,16 +12,18 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
  * the warm off-white. The sequence is chosen to read as a journey rather than a
  * set of unrelated screens:
  *
- *   white -> navy -> blue -> orange
+ *   white -> navy -> blue -> white
  *
- * Light, then dark, then a cooler dark, then warm. Two darks sit next to each
- * other in the middle so the eye is never thrown from white straight to orange,
- * which is the jump that would feel abrupt. The accent word carries the contrast
- * on each one, so the word colour rotates independently of the ground.
+ * Light, then dark, then a cooler dark, then back to light. It opens and closes
+ * on the same ground, so the deck reads as a single arc that returns home rather
+ * than ending somewhere new — and the two darks in the middle mean the eye is
+ * never thrown straight from white to a saturated accent. The accent word
+ * carries the contrast on each one, so the word colour rotates independently of
+ * the ground.
  *
  * Every pairing clears WCAG AA for body text at these sizes (the display word is
- * far past it): navy-on-white and navy-on-orange ~6:1, orange-on-navy ~6:1,
- * white-on-blue ~5.4:1. The sentence tints are held above 4.5:1 on their ground.
+ * far past it): navy-on-white ~17:1, orange-on-navy ~6.5:1, white-on-blue ~5.4:1.
+ * The sentence tints are held above 4.5:1 on their ground.
  */
 const SLIDES = [
   {
@@ -48,9 +50,9 @@ const SLIDES = [
   {
     word: "OURS",
     line: "Ranchi's table at JD Hi Street Mall, Hindpiri — whenever you arrive.",
-    bg: "bg-orange",
+    bg: "bg-white",
     wordColor: "text-navy",
-    lineColor: "text-navy/75",
+    lineColor: "text-navy/65",
   },
 ] as const;
 
