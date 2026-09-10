@@ -238,18 +238,12 @@ export function Ambience() {
         />
 
         {/*
-          Sits a little over the bottom of the video with rounded top corners, so
-          the panel reads as a card laid on top of the loop rather than a block
-          stacked under it. `relative` is what lets it paint above the video —
-          both are in flow, and a positioned later sibling wins.
-
-          The overlap is deliberately small (`-mt-4`, 16px): enough that the
-          corners visibly cut into the video, not enough to cost it any real
-          picture. The radius is held to 1.75rem for the same reason — a bigger
-          curve sweeps across more of the video at the corners and reads as more
-          overlap than the margin actually gives, which is what 3rem did.
+          Flush against the video, square-cornered. A rounded, overlapping card
+          was tried here and read as the panel sitting heavily on the loop; that
+          treatment now lives on the Reservation section instead, where navy over
+          this white block is the stronger contrast for it.
         */}
-        <div className="relative -mt-4 rounded-t-[1.75rem] bg-white py-10 text-navy">
+        <div className="bg-white py-10 text-navy">
           {/* Wraps on a phone by design — one line here would be unreadably small. */}
           <h2 className="max-w-xl px-5 font-display text-3xl leading-tight">
             {headlineText}

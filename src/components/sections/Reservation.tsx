@@ -129,8 +129,22 @@ export function Reservation() {
       </p>
     ) : null;
 
+  /*
+    On a phone this section rides a little over the bottom of the white Ambience
+    block above it, with rounded top corners, so it reads as a navy card laid on
+    the page rather than the next slab in a stack. `relative` is what lets it
+    paint above the in-flow block before it. The overlap is small — 16px — and
+    the 1.75rem radius is held down for the same reason: a bigger curve reads as
+    more overlap than the margin actually gives.
+
+    Desktop resets both. There the Ambience stage above is a pinned navy panel,
+    so a rounded navy card on navy would round a corner nobody could see.
+  */
   return (
-    <section id="reserve" className="bg-navy text-white">
+    <section
+      id="reserve"
+      className="relative -mt-4 rounded-t-[1.75rem] bg-navy text-white md:mt-0 md:rounded-none"
+    >
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-20 md:grid-cols-[0.9fr_1.1fr] md:gap-16 md:px-12 md:py-28">
         <div className="relative h-[52svh] overflow-hidden rounded-3xl md:h-auto md:min-h-[44rem]">
           <Image
