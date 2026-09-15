@@ -2,14 +2,14 @@
 
 ## What this is
 A single-page, scroll-driven ("scrollytelling") marketing site for **Zoi**, a
-fine-dining restaurant in Ranchi. Image-heavy, minimal text, cinematic. This is
+modern dining restaurant in Ranchi. Image-heavy, minimal text, cinematic. This is
 NOT a 3D/WebGL showcase and NOT a traditional layout — no standard sticky top
 navbar, no wordy About section. The scroll IS the experience.
 
 Live venue details (use these exact values, don't invent):
 - Address: 4th Floor, JD Hi Street Mall, Mahatma Gandhi Main Road, Hindpiri, Ranchi
 - Phone: +91 77799 74888
-- Hours: Daily 12:00 PM – 11:00 PM
+- Hours: Daily 12:00 PM – 12:00 AM (noon to midnight)
 - Instagram: @lifeatzoi
 - Tagline: "Life at Zoi — where every night becomes a story."
 

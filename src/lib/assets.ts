@@ -28,7 +28,7 @@ export const SITE_URL = "https://www.zoiworld.com";
  *
  * `alt` describes what is actually in each frame — these are the only photographs
  * of the room on the site, so an empty alt forfeits image search entirely for the
- * one thing a fine-dining visitor searches for.
+ * one thing a visitor to a restaurant like this searches for.
  *
  * Written from the frames themselves, not from the filenames. All eight are
  * INTERIOR shots: there is no food, no chef and no diner in any of them, so none
@@ -211,7 +211,7 @@ export const VENUE = {
   phone: "+91 77799 74888",
   /** E.164, for tel: and wa.me links. */
   phoneRaw: "+917779974888",
-  hours: "Daily 12:00 PM – 11:00 PM",
+  hours: "Daily 12:00 PM – 12:00 AM",
   instagram: "@lifeatzoi",
   instagramUrl: "https://instagram.com/lifeatzoi",
 } as const;

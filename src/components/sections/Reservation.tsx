@@ -149,7 +149,7 @@ export function Reservation() {
         <div className="relative h-[52svh] overflow-hidden rounded-3xl md:h-auto md:min-h-[44rem]">
           <Image
             src={RESERVATION_IMAGE.src}
-            alt="A long table laid for dinner beneath the fringed chandeliers at Zoi, a fine dining restaurant in Ranchi"
+            alt="A long table laid for dinner beneath the fringed chandeliers at Zoi, a modern dining restaurant in Ranchi"
             fill
             loading="lazy"
             sizes="(min-width: 768px) 42vw, 100vw"

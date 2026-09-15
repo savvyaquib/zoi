@@ -1,6 +1,6 @@
 # Zoi
 
-Single-page, scroll-driven marketing site for **Zoi**, a fine-dining restaurant in
+Single-page, scroll-driven marketing site for **Zoi**, a modern dining restaurant in
 Ranchi. Image-heavy, minimal text, cinematic — the scroll *is* the experience.
 
 Live venue details, the four-colour palette, and the non-negotiable performance

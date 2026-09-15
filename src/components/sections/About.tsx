@@ -42,7 +42,7 @@ const SLIDES = [
   },
   {
     word: "WARM",
-    line: "Low light, long dinners, no rush — fine dining the way Ranchi deserves it.",
+    line: "Low light, long dinners, no rush — modern dining the way Ranchi deserves it.",
     bg: "bg-blue",
     wordColor: "text-white",
     lineColor: "text-white/80",

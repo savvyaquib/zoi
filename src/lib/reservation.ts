@@ -24,12 +24,12 @@ export type ReservationDetails = {
 /**
  * Service window, in minutes past midnight.
  *
- * The venue is open 12:00 PM - 11:00 PM, so 10:45 PM is the last quarter-hour
- * slot that still falls inside it. Nothing here invents a "last seating" rule —
- * if the restaurant wants to stop taking tables earlier, move LAST_SLOT.
+ * The venue is open noon to midnight, so 11:45 PM is the last quarter-hour slot
+ * that still falls inside it. Nothing here invents a "last seating" rule — if
+ * the restaurant wants to stop taking tables earlier, move LAST_SLOT.
  */
 const FIRST_SLOT = 12 * 60;
-const LAST_SLOT = 22 * 60 + 45;
+const LAST_SLOT = 23 * 60 + 45;
 
 /** Quarter-hour granularity: 7:15, 7:30, 7:45 — never 7:16. */
 const SLOT_STEP = 15;

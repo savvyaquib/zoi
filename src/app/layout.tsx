@@ -17,8 +17,14 @@ const inter = Inter({
   display: "swap",
 });
 
+/**
+ * "Modern dining" is how Zoi describes itself; "fine dining" is what a lot of
+ * people type when they are looking for exactly this kind of room. The copy
+ * leads with the first and carries the second as a qualifier, so a search for
+ * either lands here without the page contradicting itself.
+ */
 const DESCRIPTION =
-  "Zoi is a fine-dining restaurant at JD Hi Street Mall, Hindpiri, Ranchi — serving Asian, Continental & North Indian cuisine. Reserve your table for lunch or dinner, open daily 12 PM – 11 PM.";
+  "Zoi is a modern dining restaurant at JD Hi Street Mall, Hindpiri, Ranchi — a fine-dining experience with Asian, Continental & North Indian cuisine. Reserve a table for lunch or dinner, open daily from noon to midnight.";
 
 /**
  * Shorter than the <title>, and deliberately so.
@@ -28,18 +34,29 @@ const DESCRIPTION =
  * button. This keeps the punchier form for sharing while the page title stays
  * optimised for search.
  */
-const SOCIAL_TITLE = "Zoi — Fine Dining in Ranchi";
+const SOCIAL_TITLE = "Zoi — Modern Dining in Ranchi";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Zoi — Fine Dining Restaurant in Hindpiri, Ranchi | Reserve a Table",
+  title: "Zoi — Modern Dining Restaurant in Hindpiri, Ranchi | Reserve a Table",
   description: DESCRIPTION,
+  /*
+    Google has ignored this tag since 2009; Bing and some directories still read
+    it lightly. Cheap to keep honest. Both dining terms, the three cuisines the
+    kitchen actually cooks, the neighbourhood, and "late night" — which is true
+    now that the doors close at midnight.
+  */
   keywords: [
     "Zoi",
+    "modern dining Ranchi",
     "fine dining Ranchi",
     "restaurant Ranchi",
     "Hindpiri restaurant",
     "JD Hi Street Mall",
+    "Asian restaurant Ranchi",
+    "Continental restaurant Ranchi",
+    "North Indian restaurant Ranchi",
+    "late night restaurant Ranchi",
   ],
   /*
     One page, so the canonical is simply the origin. Resolved against
@@ -115,6 +132,13 @@ const restaurantSchema = {
     built to be read by machines.
   */
   servesCuisine: ["Asian", "Continental", "North Indian"],
+  /*
+    Restaurant inherits `keywords` from Place and Organization, so this is
+    legitimate here. It is where the "modern vs fine dining" question is settled
+    for a machine: the business calls itself the first, and is a correct answer
+    to a search for the second.
+  */
+  keywords: "modern dining, fine dining, Asian, Continental, North Indian, late night, Ranchi, Hindpiri",
   priceRange: "₹₹₹",
   currenciesAccepted: "INR",
   // The site's entire purpose. Previously unstated, so Google could not surface a
@@ -127,8 +151,15 @@ const restaurantSchema = {
     addressRegion: VENUE.address.region,
     addressCountry: VENUE.address.country,
   },
-  // The 24-hour form of VENUE.hours ("Daily 12:00 PM – 11:00 PM"), which is the
-  // string the footer prints. Change both together.
+  /*
+    The 24-hour form of VENUE.hours ("Daily 12:00 PM – 12:00 AM"), which is the
+    string the footer prints. Change both together.
+
+    `closes` is 23:59, not 00:00. Google's own LocalBusiness examples use 23:59
+    to mean "through the end of the day"; 00:00 reads as the start of the same
+    day to some validators and as next-day-midnight to others, which is exactly
+    the ambiguity a schema exists to remove.
+  */
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
     dayOfWeek: [
@@ -141,7 +172,7 @@ const restaurantSchema = {
       "Sunday",
     ],
     opens: "12:00",
-    closes: "23:00",
+    closes: "23:59",
   },
   sameAs: [VENUE.instagramUrl],
 };

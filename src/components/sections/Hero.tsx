@@ -487,7 +487,7 @@ export function Hero() {
         introduces, which is also the order a screen reader announces them.
       */}
       <h1 className="sr-only">
-        Zoi — Fine Dining Restaurant in Hindpiri, Ranchi | Asian, Continental
+        Zoi — Modern Dining Restaurant in Hindpiri, Ranchi | Asian, Continental
         &amp; North Indian Cuisine
       </h1>
 

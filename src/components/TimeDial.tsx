@@ -10,10 +10,10 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
  *
  * A dial is usually a poor picker: it needs an AM/PM toggle, most positions are
  * unbookable, and it hides options behind a second stage. None of that applies to
- * Zoi. The venue serves 12:00 PM - 10:45 PM, so EVERY bookable hour is PM and
- * eleven of the twelve dial positions are live — only 11 is dark. There is no
- * meridiem to disambiguate and almost nothing disabled, which is the one shape of
- * opening hours a clock face actually fits.
+ * Zoi. The venue serves noon to midnight, so EVERY bookable hour is PM and all
+ * twelve dial positions are live. There is no meridiem to disambiguate and
+ * nothing disabled at all — one full turn of the clock is exactly the service,
+ * which is the one shape of opening hours a clock face actually fits.
  *
  * Quarter-hour granularity does the rest: the minute stage has four targets at
  * 12/3/6/9, not sixty.
@@ -44,8 +44,7 @@ const STEP_DEGREES = 30;
  * The dial numbers, in clock order, mapped to the 24-hour value each one means.
  *
  * Reading clockwise from the top: 12 PM (noon, 12), then 1 PM (13) through 11 PM
- * (23). The kitchen's last seating is 10:45 PM, so 11 is present for the sake of a
- * complete clock face and permanently disabled — a gap there would read as a bug.
+ * (23). With the doors closing at midnight every one of them is bookable.
  */
 const HOURS = Array.from({ length: 12 }, (_, i) => {
   const display = i === 0 ? 12 : i;
@@ -58,7 +57,12 @@ const MINUTES = [0, 15, 30, 45].map((minute, i) => ({
   degrees: i * 90,
 }));
 
-const LAST_BOOKABLE_HOUR = 22;
+/**
+ * Kept as a guard even though nothing currently trips it: the last seating is
+ * 11:45 PM, so 23 is live. If service ever ends earlier again, lowering this is
+ * the whole change — the dial greys the trailing hours out on its own.
+ */
+const LAST_BOOKABLE_HOUR = 23;
 
 /** Percentage coordinates of a point on the dial at `degrees` from 12 o'clock. */
 function positionAt(degrees: number, radius = RADIUS) {
@@ -293,7 +297,7 @@ export function TimeDial({
       <p className="mt-4 text-center font-sans text-xs text-white/55">
         {stage === "hour" ? "Choose an hour" : "Choose the minutes"}
         <span className="mx-2 text-white/20">·</span>
-        Last seating 10:45 PM
+        Last seating 11:45 PM
       </p>
     </div>
   );
