@@ -70,21 +70,39 @@ const SLIDES = [
 /**
  * ── The beat, as fractions of each slide's one-unit window ──────────────────
  *
- *   0.00 ─ 0.16   the word, at rest
- *   0.16 ─ 0.36   the morph: word out, tagline and paragraph in
- *   0.36 ─ 0.86   the copy, at rest  ← half the beat. This is the read.
+ *   0.00 ─ 0.12   the word, at rest
+ *   0.12 ─ 0.48   the morph: the word shrinks away, the tagline grows into it
+ *   0.48 ─ 0.86   the copy, at rest  ← the read
  *   0.86 ─ 1.00   the next ground rises over this one
  *
- * The previous shape had no copy rest at all: the crossfade began on the same
- * frame the morph finished, so a paragraph was already dissolving before it
- * could be read. Now the two rests are the bulk of the beat and the two
- * transitions are short — which is also what makes the snap below feel like
- * "either the word or the copy" rather than a continuous morph.
+ * The morph is deliberately long enough to be WATCHED — over a third of the
+ * beat, ~40svh of scroll — because it is the section's one piece of
+ * choreography: the word visibly becoming smaller while the tagline visibly
+ * becomes larger. A short morph read as a cut. This one reads as a move.
+ *
+ * It does not conflict with the snap. Rest points sit at both ends of the
+ * morph, so a stop in the middle is carried to a side — and the scrubbed
+ * timeline then plays the remainder out at its own pace, which is exactly the
+ * animation the visitor was meant to see.
  */
-const WORD_HOLD = 0.16;
-const MORPH = 0.2;
+const WORD_HOLD = 0.12;
+const MORPH = 0.36;
 const CROSSFADE_AT = 0.86;
 const CROSSFADE = 1 - CROSSFADE_AT;
+
+/**
+ * How far behind the scroll the timeline runs, in seconds.
+ *
+ * This is what makes a snap feel like an animation rather than a jump. On a
+ * phone the browser lands the fling on a rest point in one motion; the
+ * timeline then eases across whatever it was carried over — a whole morph, if
+ * the stop was mid-way — over this duration. 0.8 is long enough to be seen and
+ * short enough that a continuous scroll still feels attached to the finger.
+ */
+const SCRUB_SECONDS = 0.8;
+
+/** Set on <html> while the deck is pinned; globals.css keys the mobile snap off it. */
+const SNAP_CLASS = "about-snap";
 
 /**
  * Where the deck is allowed to come to rest, per slide.
@@ -153,9 +171,12 @@ const SETTLE_EPSILON = 2;
  * browser owns the fling — and native snap is computed INSIDE the fling, the
  * same way the Ambience carousel lands on a card. Invisible 1px markers are
  * rendered into the section at every rest point with `snap-start`, and
- * globals.css turns on `scroll-snap-type: y proximity` for the root below `md`.
- * Proximity, never mandatory: mandatory on the root would drag the page back to
- * the nearest marker from anywhere on the site.
+ * globals.css turns on `scroll-snap-type: y proximity` for the root below `md`
+ * — but only while <html> carries SNAP_CLASS, which the ScrollTrigger toggles
+ * as the deck pins and unpins. Outside the deck there is no snap at all, so the
+ * hero scrolls away under native momentum. Proximity, never mandatory:
+ * mandatory on the root would drag the page back to the nearest marker from
+ * anywhere on the site.
  *
  * On desktop, the hand-rolled Lenis settle further down. Lenis writes scrollTop
  * every frame there, so CSS snap would fight it — the settle routes the nudge
@@ -205,49 +226,75 @@ export function About() {
 
         const at = i + WORD_HOLD;
 
-        // The word shrinks and lifts away.
+        /*
+          ── One path ──────────────────────────────────────────────────────
+
+          The copy block — tagline over paragraph — is centred as a whole, so
+          the tagline's resting place is half a paragraph ABOVE where the word
+          rests. Left alone, the tagline would appear above the shrinking word
+          and the two would read as a stack, not a handover.
+
+          So the tagline starts AT the word's centre and rises to its rest as
+          it grows, and the word rises along the same line as it shrinks —
+          finishing, invisible, exactly where the tagline now stands. One
+          upward motion in which the big word turns into the small line.
+
+          `dy` is measured from layout (offsetTop ignores transforms), as a
+          function so invalidateOnRefresh re-reads it after a resize or a font
+          swap changes the paragraph's height.
+        */
+        const dy = () =>
+          word.offsetTop + word.offsetHeight / 2 - (tagline.offsetTop + tagline.offsetHeight / 2);
+
+        /*
+          Size and opacity are separate tweens on purpose. If the word faded at
+          the same rate it shrank, it would be half-gone before it had visibly
+          got any smaller and the shrink would never register. It holds full
+          opacity for the first quarter — you WATCH it start to become small —
+          then dissolves over the next third, so by the time the tagline has its
+          full size the word is a ghost behind it, not a second line on top.
+        */
         tl.fromTo(
           word,
-          { scale: 1, y: 0, opacity: 1 },
-          {
-            scale: 0.55,
-            y: "-8vh",
-            opacity: 0,
-            duration: MORPH,
-            ease: "power2.inOut",
-            force3D: true,
-          },
+          { scale: 1, y: 0 },
+          { scale: 0.28, y: () => -dy(), duration: MORPH, ease: "power2.inOut", force3D: true },
           at
         );
+        tl.fromTo(
+          word,
+          { opacity: 1 },
+          { opacity: 0, duration: MORPH * 0.35, ease: "power1.inOut" },
+          at + MORPH * 0.25
+        );
 
-        // The tagline grows into the space the word just left.
+        // The tagline grows out of the word's centre and rises into its own.
         tl.fromTo(
           tagline,
-          { scale: 0.6, y: "3vh", opacity: 0 },
-          {
-            scale: 1,
-            y: 0,
-            opacity: 1,
-            duration: MORPH,
-            ease: "power2.inOut",
-            force3D: true,
-          },
+          { scale: 0.32, y: () => dy() },
+          { scale: 1, y: 0, duration: MORPH, ease: "power2.inOut", force3D: true },
           at
         );
+        tl.fromTo(
+          tagline,
+          { opacity: 0 },
+          { opacity: 1, duration: MORPH * 0.45, ease: "power1.out" },
+          at + MORPH * 0.15
+        );
 
-        // The paragraph settles in beneath it, a beat behind — so the eye lands
-        // on the tagline first and the reading order is the visual order.
+        // The paragraph settles in beneath it once the tagline has most of its
+        // size — so the eye lands on the tagline first and the reading order is
+        // the visual order.
         tl.fromTo(
           body,
           { y: "3vh", opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            duration: MORPH * 0.7,
+            duration: MORPH * 0.45,
             ease: "power2.out",
             force3D: true,
           },
-          at + MORPH * 0.3
+          at + MORPH * 0.55
         );
 
         const next = slides[i + 1];
@@ -282,10 +329,26 @@ export function About() {
         trigger: sectionRef.current,
         start: "top top",
         end: "bottom bottom",
-        // Smoothing, not 1:1. Reads calmer and does less work per scroll event.
-        scrub: 0.6,
+        scrub: SCRUB_SECONDS,
         animation: tl,
         invalidateOnRefresh: true,
+        /*
+          Arms the mobile snap ONLY while the deck is pinned.
+
+          Left on permanently, the root's `scroll-snap-type` was live while the
+          hero was still on screen, and a flick from the hero was caught by the
+          deck's first marker — the page leapt the rest of the way and the hero
+          appeared to be thrown off the top. With the class toggled here the
+          hero scrolls out under native momentum, untouched, and the snap exists
+          only once there is something to snap between.
+
+          The first marker sits at progress 0, exactly where this fires, so
+          arming the snap never moves the page by more than the few pixels the
+          scroll has already travelled past the trigger.
+        */
+        onToggle: (self) => {
+          document.documentElement.classList.toggle(SNAP_CLASS, self.isActive);
+        },
       });
 
       /*
@@ -405,7 +468,11 @@ export function About() {
       };
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      // revert() kills the trigger without firing onToggle — drop the class by hand.
+      document.documentElement.classList.remove(SNAP_CLASS);
+    };
   }, [reducedMotion, lenisRef]);
 
   // Reduced motion: a plain vertical stack of static panels, no pin, no transforms.
