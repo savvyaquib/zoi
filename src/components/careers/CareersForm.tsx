@@ -1,17 +1,23 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef } from "react";
+import { Component, useActionState, useEffect, useId, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import Script from "next/script";
 import { submitApplication } from "@/app/careers/actions";
 import {
+  applicationSchema,
+  describeFileProblem,
+  fieldErrorsFrom,
   POSITIONS,
   RESUME_ACCEPT,
   RESUME_MAX_BYTES,
+  SIGNATURE_BYTES,
   type ApplicationState,
+  type FieldErrors,
 } from "@/lib/careers";
+import { VENUE } from "@/lib/assets";
 import { FIELD, FIELD_ERROR, LABEL } from "@/lib/form";
 import { BUTTON_MOTION } from "@/lib/reservation";
-import { VENUE } from "@/lib/assets";
 
 /**
  * The application form.
@@ -21,13 +27,27 @@ import { VENUE } from "@/lib/assets";
  * carries the result back: field errors land next to their fields, a mail
  * failure lands at the top, and success swaps the form for a confirmation.
  *
+ * ── Validation happens twice, on purpose ─────────────────────────────────────
+ *
+ * The browser runs the SAME zod schema and the SAME file check the server does,
+ * in `onSubmit`, before anything is sent. Two reasons:
+ *
+ *   1. An applicant gets told "this file is 9.3 MB, the limit is 4 MB" the
+ *      instant they pick it — not after uploading 9 MB and watching the server
+ *      refuse the whole request, which the browser can only report as
+ *      "Failed to fetch".
+ *   2. The messages are identical either way, because they come from one place.
+ *
+ * The server still validates everything it receives. The browser's copy is a
+ * courtesy to the applicant, not a security boundary.
+ *
  * ── Why every input has a defaultValue from state ────────────────────────────
  *
  * React resets an uncontrolled form once its action returns, whatever the
  * result. Without these, a single typo would empty every field. The action
  * echoes the text back on failure and these put it where it was. The file
  * cannot be restored — browsers do not allow a script to set one — so the
- * résumé error says so explicitly.
+ * resume error says so explicitly.
  */
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -42,22 +62,133 @@ const INITIAL: ApplicationState = { status: "idle" };
 */
 const WHATSAPP_URL = `https://wa.me/${VENUE.phoneRaw.replace(/\D/g, "")}`;
 
+/** Marks a required label. The `required` attribute is what assistive tech reads; this is for eyes. */
+function Req() {
+  return (
+    <span aria-hidden="true" className="ml-1 text-orange">
+      *
+    </span>
+  );
+}
+
+/**
+ * Catches the one failure the action cannot report on itself: the request
+ * never completing. A dead network, a server mid-restart, a body a proxy
+ * refused — all surface as a thrown fetch, which would otherwise be a blank
+ * error screen. This turns it into the same honest message as a mail failure.
+ */
+class SubmitBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div
+        role="alert"
+        className="rounded-xl border border-orange/40 bg-orange/10 px-4 py-4 font-sans text-sm text-white"
+      >
+        <p>
+          Your application could not be sent — the connection to our server dropped before it
+          arrived. Nothing was received, so please reload the page and try again.
+        </p>
+        <p className="mt-2">
+          If it keeps happening,{" "}
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange underline underline-offset-4"
+          >
+            send it to us on WhatsApp instead
+          </a>
+          .
+        </p>
+      </div>
+    );
+  }
+}
+
 export function CareersForm() {
+  return (
+    <SubmitBoundary>
+      <ApplicationForm />
+    </SubmitBoundary>
+  );
+}
+
+function ApplicationForm() {
   const uid = useId();
   const [state, action, pending] = useActionState(submitApplication, INITIAL);
   const topRef = useRef<HTMLDivElement>(null);
 
+  /*
+    Errors found in the browser, before submitting. They take precedence over
+    whatever the server said last time, and are cleared on the next attempt.
+    `fileProblem` is checked the moment a file is chosen, so it is ready by the
+    time the button is pressed and `onSubmit` can stay synchronous — it has to
+    be, because `preventDefault` does not work after an `await`.
+  */
+  const [clientErrors, setClientErrors] = useState<FieldErrors>({});
+  const [fileProblem, setFileProblem] = useState<string | null>(null);
+
   const id = (name: string) => `${uid}-${name}`;
   const errId = (name: string) => `${uid}-${name}-error`;
 
-  const errors = state.status === "error" ? (state.fieldErrors ?? {}) : {};
+  const serverErrors = state.status === "error" ? (state.fieldErrors ?? {}) : {};
+  const errors: FieldErrors = { ...serverErrors, ...clientErrors };
   const values = state.status === "error" ? (state.values ?? {}) : {};
 
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setFileProblem(null);
+      return;
+    }
+    const head = new Uint8Array(await file.slice(0, SIGNATURE_BYTES).arrayBuffer());
+    const problem = describeFileProblem(file, head);
+    setFileProblem(problem);
+    // Surface it immediately, not only on submit — the applicant is looking here.
+    setClientErrors((e) => {
+      const next = { ...e };
+      if (problem) next.resume = problem;
+      else delete next.resume;
+      return next;
+    });
+  };
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const text: Record<string, string> = {};
+    for (const [k, v] of data.entries()) if (typeof v === "string") text[k] = v;
+
+    const found = fieldErrorsFrom(applicationSchema.safeParse(text));
+
+    const file = data.get("resume");
+    if (!(file instanceof File) || file.size === 0) {
+      found.resume = "Please attach your resume.";
+    } else if (fileProblem) {
+      found.resume = fileProblem;
+    }
+
+    if (Object.keys(found).length > 0) {
+      // Stop here — nothing leaves the browser until it would be accepted.
+      event.preventDefault();
+      setClientErrors(found);
+      const first = Object.keys(found)[0];
+      form.querySelector<HTMLElement>(`#${CSS.escape(id(first))}`)?.focus();
+      return;
+    }
+
+    setClientErrors({});
+  };
+
   /*
-    After a submit, move focus to whatever needs the visitor's attention: the
+    After a server round-trip, move focus to whatever needs attention: the
     confirmation, the top-level message, or the first field with a problem. A
-    form that reports an error two screens above where the cursor is has not
-    really reported it.
+    form that reports an error two screens above the cursor has not reported it.
   */
   useEffect(() => {
     if (state.status === "idle") return;
@@ -96,18 +227,18 @@ export function CareersForm() {
     );
   }
 
-  const fieldError = (name: string) =>
-    errors[name as keyof typeof errors] ? (
+  const fieldError = (name: keyof FieldErrors) =>
+    errors[name] ? (
       <p id={errId(name)} className={FIELD_ERROR}>
-        {errors[name as keyof typeof errors]}
+        {errors[name]}
       </p>
     ) : null;
 
-  const describe = (name: string) => (errors[name as keyof typeof errors] ? errId(name) : undefined);
-  const invalid = (name: string) => Boolean(errors[name as keyof typeof errors]);
+  const describe = (name: keyof FieldErrors) => (errors[name] ? errId(name) : undefined);
+  const invalid = (name: keyof FieldErrors) => Boolean(errors[name]);
 
   return (
-    <form action={action} noValidate className="flex flex-col gap-5">
+    <form action={action} onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       {state.status === "error" && state.message && (
         <div
           ref={topRef}
@@ -127,6 +258,13 @@ export function CareersForm() {
         </div>
       )}
 
+      <p className="font-sans text-xs text-white/55">
+        <span aria-hidden="true" className="text-orange">
+          *
+        </span>{" "}
+        Required
+      </p>
+
       {/*
         The honeypot. Off-screen and unreachable to a person: not in the tab
         order, hidden from assistive tech, autocomplete refused. A bot that fills
@@ -141,6 +279,7 @@ export function CareersForm() {
         <div>
           <label htmlFor={id("name")} className={LABEL}>
             Name
+            <Req />
           </label>
           <input
             id={id("name")}
@@ -159,6 +298,7 @@ export function CareersForm() {
         <div>
           <label htmlFor={id("phone")} className={LABEL}>
             Phone
+            <Req />
           </label>
           <input
             id={id("phone")}
@@ -179,6 +319,7 @@ export function CareersForm() {
         <div className="sm:col-span-2">
           <label htmlFor={id("email")} className={LABEL}>
             Email
+            <Req />
           </label>
           <input
             id={id("email")}
@@ -197,6 +338,7 @@ export function CareersForm() {
         <div>
           <label htmlFor={id("position")} className={LABEL}>
             Position
+            <Req />
           </label>
           <select
             id={id("position")}
@@ -222,6 +364,7 @@ export function CareersForm() {
         <div>
           <label htmlFor={id("experience")} className={LABEL}>
             Experience
+            <Req />
           </label>
           <input
             id={id("experience")}
@@ -259,7 +402,8 @@ export function CareersForm() {
 
       <div>
         <label htmlFor={id("resume")} className={LABEL}>
-          Résumé
+          Resume
+          <Req />
         </label>
         {/*
           A native file input, styled through the `file:` variants so the button
@@ -273,6 +417,7 @@ export function CareersForm() {
           type="file"
           accept={RESUME_ACCEPT}
           required
+          onChange={onFileChange}
           aria-invalid={invalid("resume")}
           aria-describedby={errors.resume ? errId("resume") : id("resume-hint")}
           className={`${FIELD} cursor-pointer py-3 file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-1.5 file:font-sans file:text-xs file:tracking-[0.1em] file:text-white file:uppercase hover:file:bg-white/15`}
@@ -296,8 +441,9 @@ export function CareersForm() {
             className="mt-0.5 size-4 shrink-0 accent-orange focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none"
           />
           <span>
-            I am happy for Zoi to hold my details and résumé for this application. They go to
-            the hiring team by email and are not stored on this website.
+            I am happy for Zoi to hold my details and resume for this application. They go to the
+            hiring team by email and are not stored on this website.
+            <Req />
           </span>
         </label>
         {fieldError("consent")}

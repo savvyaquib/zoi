@@ -52,6 +52,44 @@ export function looksLike(extension: string, bytes: Uint8Array): boolean {
   return candidates.some((sig) => sig.every((b, i) => bytes[i] === b));
 }
 
+/** How many leading bytes the signature check needs — the longest signature. */
+export const SIGNATURE_BYTES = 8;
+
+function megabytes(bytes: number): string {
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+/**
+ * Why a file cannot be accepted, in words the applicant can act on — or null
+ * when it can.
+ *
+ * Runs in BOTH places. The browser calls it the moment a file is chosen, so a
+ * 12 MB PDF is refused with a message before a byte of it is uploaded — and
+ * before the server's body limit could reject the whole request with nothing
+ * more useful than "Failed to fetch". The server calls it again on what
+ * actually arrived, because the browser is not to be trusted.
+ *
+ * `head` is the file's first few bytes. The browser reads them with a slice;
+ * the server already has the whole file.
+ */
+export function describeFileProblem(
+  file: { name: string; size: number },
+  head: Uint8Array
+): string | null {
+  if (file.size === 0) return "Please attach your resume.";
+  if (file.size > RESUME_MAX_BYTES) {
+    return `This file is ${megabytes(file.size)} — the limit is ${megabytes(RESUME_MAX_BYTES)}. Try exporting it as a smaller PDF.`;
+  }
+  const ext = extensionOf(file.name);
+  if (!(ext in SIGNATURES)) {
+    return `"${ext ? "." + ext : "This file"}" is not a format we can open. Please upload a PDF, DOC or DOCX.`;
+  }
+  if (!looksLike(ext, head)) {
+    return `This file is named .${ext} but does not appear to be a real ${ext.toUpperCase()}. Please export it again and re-attach.`;
+  }
+  return null;
+}
+
 /**
  * The text fields. `website` is the honeypot — it is rendered off-screen with
  * every hint a browser understands not to fill it, so a value there means a bot.
@@ -72,6 +110,19 @@ export const applicationSchema = z.object({
 
 export type ApplicationFields = z.infer<typeof applicationSchema>;
 
+export type FieldErrors = Partial<Record<keyof ApplicationFields | "resume", string>>;
+
+/** First message per field from a zod result, so both sides format errors the same way. */
+export function fieldErrorsFrom(result: ReturnType<typeof applicationSchema.safeParse>): FieldErrors {
+  const errors: FieldErrors = {};
+  if (result.success) return errors;
+  for (const issue of result.error.issues) {
+    const key = issue.path[0] as keyof ApplicationFields;
+    if (!errors[key]) errors[key] = issue.message;
+  }
+  return errors;
+}
+
 /** What the action reports back to the form. */
 export type ApplicationState =
   | { status: "idle" }
@@ -80,7 +131,7 @@ export type ApplicationState =
       status: "error";
       /** Shown at the top when nothing field-specific applies. */
       message?: string;
-      fieldErrors?: Partial<Record<keyof ApplicationFields | "resume", string>>;
+      fieldErrors?: FieldErrors;
       /** Echoed back so a failed submit does not wipe what was typed. */
       values?: Partial<Record<keyof ApplicationFields, string>>;
     };

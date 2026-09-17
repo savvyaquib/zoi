@@ -5,12 +5,12 @@ import { VENUE } from "@/lib/assets";
 export const metadata: Metadata = {
   title: "Careers at Zoi — Modern Dining in Hindpiri, Ranchi",
   description:
-    "Work at Zoi, a modern dining and lifestyle destination in Ranchi. Kitchen, service, bar and management roles — send us your résumé.",
+    "Work at Zoi, a modern dining and lifestyle destination in Ranchi. Kitchen, service, bar and management roles — send us your resume.",
   alternates: { canonical: "/careers" },
   openGraph: {
     title: "Careers at Zoi",
     description:
-      "Kitchen, service, bar and management roles at Zoi, Ranchi. Send us your résumé.",
+      "Kitchen, service, bar and management roles at Zoi, Ranchi. Send us your resume.",
     url: "/careers",
   },
 };
@@ -44,7 +44,7 @@ export default function CareersPage() {
           <p>
             If you have the craft — in the kitchen, on the floor, behind the bar — and you care
             about how people feel while they are here, we would like to hear from you. Tell us a
-            little about yourself and attach your résumé. It goes straight to the hiring team.
+            little about yourself and attach your resume. It goes straight to the hiring team.
           </p>
         </div>
 

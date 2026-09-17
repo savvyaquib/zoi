@@ -4,9 +4,10 @@ import { Resend } from "resend";
 import { VENUE } from "@/lib/assets";
 import {
   applicationSchema,
+  describeFileProblem,
   extensionOf,
-  looksLike,
-  RESUME_MAX_BYTES,
+  fieldErrorsFrom,
+  SIGNATURE_BYTES,
   type ApplicationFields,
   type ApplicationState,
 } from "@/lib/careers";
@@ -21,8 +22,8 @@ import {
  *
  * ── A letterbox, not a filing cabinet ────────────────────────────────────────
  *
- * The résumé goes into the HR email as an attachment and nowhere else. Nothing
- * is written to disk or a database. Every stored résumé would be personal data
+ * The resume goes into the HR email as an attachment and nowhere else. Nothing
+ * is written to disk or a database. Every stored resume would be personal data
  * the venue is responsible for, so the server keeps none — HR's inbox is the
  * record.
  */
@@ -114,7 +115,7 @@ type ValidationFailure = Extract<ApplicationState, { status: "error" }>;
 
 /**
  * Turns a FormData into a fully validated application, or the exact errors to
- * show. The résumé is checked three ways — size, extension, and the bytes it
+ * show. The resume is checked three ways — size, extension, and the bytes it
  * actually starts with — because only the last one cannot be lied about.
  */
 export async function validateApplication(
@@ -131,30 +132,20 @@ export async function validateApplication(
   for (const [k, v] of Object.entries(raw)) text[k] = typeof v === "string" ? v : "";
 
   const parsed = applicationSchema.safeParse(text);
-  const fieldErrors: ValidationFailure["fieldErrors"] = {};
-
-  if (!parsed.success) {
-    for (const issue of parsed.error.issues) {
-      const key = issue.path[0] as keyof ApplicationFields;
-      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
-    }
-  }
+  const fieldErrors = fieldErrorsFrom(parsed);
 
   const file = form.get("resume");
   let resume: ValidatedApplication["resume"] | null = null;
 
-  if (!(file instanceof File) || file.size === 0) {
-    fieldErrors.resume = "Please attach your résumé.";
-  } else if (file.size > RESUME_MAX_BYTES) {
-    fieldErrors.resume = `Please keep the file under ${RESUME_MAX_BYTES / 1024 / 1024} MB.`;
+  if (!(file instanceof File)) {
+    fieldErrors.resume = "Please attach your resume.";
   } else {
-    const ext = extensionOf(file.name);
+    // The same check the browser already ran — repeated because the browser is
+    // not to be trusted, and this is the copy that actually gates the send.
     const bytes = Buffer.from(await file.arrayBuffer());
-    if (!looksLike(ext, bytes)) {
-      fieldErrors.resume = "Please upload a PDF, DOC or DOCX file.";
-    } else {
-      resume = { filename: safeFilename(file.name, text.name), bytes };
-    }
+    const problem = describeFileProblem(file, bytes.subarray(0, SIGNATURE_BYTES));
+    if (problem) fieldErrors.resume = problem;
+    else resume = { filename: safeFilename(file.name, text.name), bytes };
   }
 
   if (!parsed.success || !resume) {
@@ -207,7 +198,7 @@ export async function sendApplication(app: ValidatedApplication): Promise<{ id: 
     "",
     fields.message ? `Message:\n${fields.message}` : "(no message)",
     "",
-    `Résumé attached: ${resume.filename}`,
+    `Resume attached: ${resume.filename}`,
     "",
     `Reply to this email to reach the applicant directly.`,
   ].join("\n");
@@ -230,7 +221,7 @@ export async function sendApplication(app: ValidatedApplication): Promise<{ id: 
   const ackBody = [
     `Hi ${fields.name.split(" ")[0]},`,
     "",
-    `Thanks for applying to ${VENUE.name} — we have your application for ${fields.position} and your résumé is with the team.`,
+    `Thanks for applying to ${VENUE.name} — we have your application for ${fields.position} and your resume is with the team.`,
     "",
     `We read every application. If your experience matches what we are looking for, someone will be in touch on ${fields.phone} or by replying to this email.`,
     "",

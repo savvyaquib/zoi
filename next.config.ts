@@ -5,11 +5,11 @@ const nextConfig: NextConfig = {
     serverActions: {
       /*
         Server Actions refuse bodies over 1 MB by default, which would fail every
-        résumé upload before the action even ran. 4 MB fits a generous résumé
-        and stays under Vercel's 4.5 MB hard cap on function request bodies —
-        the multipart framing costs ~10-20 KB on top of the file itself.
+        resume upload before the action even ran. The file itself is capped at
+        4 MB in lib/careers; this is Vercel's own 4.5 MB ceiling on function bodies,
+        which leaves the multipart framing (~10-20 KB) room over the file cap.
       */
-      bodySizeLimit: "4mb",
+      bodySizeLimit: "4.5mb",
     },
   },
   images: {
