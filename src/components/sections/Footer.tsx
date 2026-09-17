@@ -157,9 +157,26 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="mt-16 border-t border-white/10 pt-6 font-sans text-xs text-white/55">
-          © 2026 Zoi Restaurant. All rights reserved. · Ranchi
-        </p>
+        {/*
+          The legal line and the studio credit share one rule. They stack on a
+          phone and sit at opposite ends from `sm` up — the credit lives on the
+          right, where a maker's mark is expected and where it stays out of the
+          way of the copyright.
+        */}
+        <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-6 font-sans text-xs text-white/55 sm:flex-row sm:items-baseline sm:justify-between">
+          <p>© 2026 Zoi Restaurant. All rights reserved. · Ranchi</p>
+          <p>
+            Crafted by{" "}
+            <a
+              href="https://onyxsavvy.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 underline-offset-4 transition-colors duration-150 ease-out hover:text-orange hover:underline focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none"
+            >
+              OnyxSavvy
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );
