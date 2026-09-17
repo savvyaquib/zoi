@@ -19,13 +19,25 @@ export const SECTION_LINKS = [
 export const HOME_LINK = "/#hero";
 
 /**
- * The footer's list: the sections, plus the pages that are not for diners.
+ * What the hamburger opens: the home sections with the menu slotted in before
+ * Reserve — read, look, choose, book. Menu is a real page, so the click
+ * handlers' hash lookup finds nothing and the browser simply navigates.
+ */
+export const NAV_LINKS = [
+  SECTION_LINKS[0],
+  SECTION_LINKS[1],
+  { label: "Menu", href: "/menu" },
+  SECTION_LINKS[2],
+] as const;
+
+/**
+ * The footer's list: the nav, plus the pages that are not for diners.
  *
  * Careers is deliberately NOT in the nav. The nav is for someone deciding
  * whether to book a table; a job link there is noise to almost everyone who
  * opens it. The footer is where people expect to find it.
  */
-export const FOOTER_LINKS = [...SECTION_LINKS, { label: "Careers", href: "/careers" }] as const;
+export const FOOTER_LINKS = [...NAV_LINKS, { label: "Careers", href: "/careers" }] as const;
 
 /**
  * "/#about" -> "#about", for `document.querySelector`.

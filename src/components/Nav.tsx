@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
 import { BRAND, VENUE } from "@/lib/assets";
-import { HOME_LINK, SECTION_LINKS, hashOf } from "@/lib/links";
+import { HOME_LINK, NAV_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -291,7 +291,14 @@ export function Nav() {
             open ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"
           }`}
         >
+          {/*
+            The mark is cream, drawn for the dark hero. A page on a light ground
+            declares itself with data-surface="paper" on <html> (see
+            SurfaceFlag) and globals.css turns this black there — the wordmark
+            never has to know which page it is on.
+          */}
           <Image
+            data-nav-wordmark
             src={BRAND.logo.src}
             alt="Zoi"
             width={BRAND.logo.width}
@@ -452,7 +459,7 @@ export function Nav() {
         >
           <nav>
             <ul className="flex flex-col">
-              {SECTION_LINKS.map((link, i) => (
+              {NAV_LINKS.map((link, i) => (
                 <li key={link.href} className="border-b border-white/10">
                   <a
                     ref={(el) => {

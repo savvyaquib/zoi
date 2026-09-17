@@ -148,6 +148,9 @@ const restaurantSchema = {
   // The site's entire purpose. Previously unstated, so Google could not surface a
   // reserve action for a business whose primary CTA is reserving a table.
   acceptsReservations: true,
+  // The two cards, each a page with its own Menu markup. This is the link
+  // Google follows from the business to what it serves.
+  hasMenu: [`${SITE_URL}/menu`, `${SITE_URL}/menu/bar`],
   address: {
     "@type": "PostalAddress",
     streetAddress: VENUE.address.street,
