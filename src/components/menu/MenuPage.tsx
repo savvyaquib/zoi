@@ -143,7 +143,16 @@ function Group({ group, script }: { group: MenuGroup; script: boolean }) {
   );
 }
 
-function Section({ section, script }: { section: MenuSection; script: boolean }) {
+function Section({
+  section,
+  script,
+  first,
+}: {
+  section: MenuSection;
+  script: boolean;
+  /** The first section on the page: its images are above the fold. */
+  first: boolean;
+}) {
   return (
     <section
       id={section.id}
@@ -163,58 +172,72 @@ function Section({ section, script }: { section: MenuSection; script: boolean })
             height={section.photo.height}
             sizes="(min-width: 1024px) 896px, 100vw"
             className="h-auto w-full object-cover md:max-h-[34rem]"
-            loading="lazy"
+            /* The opening photograph is the page's largest paint; it must not
+               wait for a lazy-load threshold it has already crossed. */
+            priority={first}
+            loading={first ? undefined : "lazy"}
           />
         </figure>
       )}
 
-      <div className="md:grid md:grid-cols-[1fr_11rem] md:gap-10">
-        <div>
-          <h2
-            id={`${section.id}-title`}
-            className={`text-menu-red text-balance ${
-              script
-                ? "font-menu-script text-[2.75rem] leading-[0.95] font-semibold md:text-[3.5rem]"
-                : "font-menu-display text-[2.25rem] leading-[1.05] font-medium md:text-[2.9rem]"
-            }`}
-          >
-            {section.title}
-          </h2>
+      {/*
+        ── Where the illustration sits, and why it is a grid ─────────────────
 
-          {section.groups.map((g, i) => (
-            <Group key={g.label ?? i} group={g} script={script} />
-          ))}
-        </div>
+        On a phone the art used to sit at the END of its section — which on a
+        vertical page is directly above the NEXT section's heading, so a beer
+        glass read as Alcopops' and a milkshake as Milkshakes' neighbour. It
+        now sits beside the heading it belongs to, in the same row, which is
+        where the eye files it.
+
+        One grid, one image, two layouts:
+
+          phone     row 1: heading | art        row 2: the groups (full width)
+          md+       col 1: heading, groups      col 2: art, spanning both rows
+
+        A single <Image> served both ways — no hidden duplicate for a second
+        breakpoint, so nothing is fetched twice or laid out twice.
+      */}
+      <div className="grid grid-cols-[1fr_auto] gap-x-5 md:grid-cols-[1fr_11rem] md:gap-x-10">
+        <h2
+          id={`${section.id}-title`}
+          className={`col-start-1 self-center text-menu-red text-balance ${
+            script
+              ? "font-menu-script text-[2.75rem] leading-[0.95] font-semibold md:text-[3.5rem]"
+              : "font-menu-display text-[2.25rem] leading-[1.05] font-medium md:text-[2.9rem]"
+          }`}
+        >
+          {section.title}
+        </h2>
 
         {section.art && (
-          /*
-            The illustration. On the page it sits in the outer margin beside
-            the copy; here it takes the right-hand column from md up, and on a
-            phone tucks in small at the end of the section — present, never
-            in the way of the prices.
-          */
           <figure
             aria-hidden="true"
-            className="mt-6 flex justify-end md:mt-2 md:block md:justify-start md:pt-2"
+            className="col-start-2 row-start-1 self-center md:row-span-2 md:self-start md:pt-2"
           >
             <Image
               src={section.art.src}
               alt=""
               width={section.art.width}
               height={section.art.height}
-              sizes="(min-width: 768px) 176px, 112px"
+              sizes="(min-width: 768px) 176px, 96px"
               /*
-                Multiply. The crops carry their own cream ground, a shade off
-                the paper texture behind them, and without this each one sits
-                in a faint lighter rectangle. Multiplied, cream over cream is
-                cream, and only the ink of the drawing lands on the page — the
-                way it does in print.
+                Multiply. Each crop was exported with its own paper ground
+                remapped to pure white, and white multiplied over the page is
+                the page — so only the ink of the drawing lands, the way it
+                does in print, with no box around it.
               */
-              className="h-auto w-28 mix-blend-multiply md:w-44"
-              loading="lazy"
+              className="h-auto w-24 mix-blend-multiply md:w-44"
+              priority={first}
+              loading={first ? undefined : "lazy"}
             />
           </figure>
         )}
+
+        <div className="col-span-2 col-start-1 md:col-span-1">
+          {section.groups.map((g, i) => (
+            <Group key={g.label ?? i} group={g} script={script} />
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -282,8 +305,8 @@ export function MenuPage({ menu }: { menu: Menu }) {
       </div>
 
       <div className="mx-auto max-w-4xl px-5 md:px-8">
-        {menu.sections.map((s) => (
-          <Section key={s.id} section={s} script={script} />
+        {menu.sections.map((s, i) => (
+          <Section key={s.id} section={s} script={script} first={i === 0} />
         ))}
 
         <footer className="border-t border-menu-red/15 py-10 md:py-14">

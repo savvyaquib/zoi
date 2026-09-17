@@ -138,7 +138,6 @@ export const BAR_MENU: Menu = {
     {
       id: "shot-room",
       title: "The Shot Room",
-      art: { src: "/assets/menu/bar-shots.jpg", width: 456, height: 624, alt: "" },
       groups: [
         {
           items: [
@@ -156,6 +155,7 @@ export const BAR_MENU: Menu = {
     {
       id: "long-drinks",
       title: "Zoi Long Drinks",
+      art: { src: "/assets/menu/bar-shots.jpg", width: 456, height: 624, alt: "" },
       groups: [
         {
           items: [
@@ -309,6 +309,7 @@ export const BAR_MENU: Menu = {
     {
       id: "alcopops",
       title: "Alcopops",
+      art: { src: "/assets/menu/bar-signature-spirits.jpg", width: 408, height: 600, alt: "" },
       groups: [
         {
           items: [
@@ -347,7 +348,6 @@ export const BAR_MENU: Menu = {
     {
       id: "signature-beverages",
       title: "Signature Beverages",
-      art: { src: "/assets/menu/bar-shake.jpg", width: 510, height: 906, alt: "" },
       groups: [
         {
           items: [
@@ -364,6 +364,7 @@ export const BAR_MENU: Menu = {
     {
       id: "milkshakes",
       title: "Milkshakes",
+      art: { src: "/assets/menu/bar-shake.jpg", width: 510, height: 906, alt: "" },
       groups: [
         {
           items: [
