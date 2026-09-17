@@ -17,52 +17,98 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
  * Light, then dark, then a cooler dark, then back to light. It opens and closes
  * on the same ground, so the deck reads as a single arc that returns home rather
  * than ending somewhere new — and the two darks in the middle mean the eye is
- * never thrown straight from white to a saturated accent. The accent word
- * carries the contrast on each one, so the word colour rotates independently of
- * the ground.
+ * never thrown straight from white to a saturated accent. The accent carries
+ * through from the word to the tagline on each slide, so the colour rotates
+ * independently of the ground.
  *
  * Every pairing clears WCAG AA for body text at these sizes (the display word is
  * far past it): navy-on-white ~17:1, orange-on-navy ~6.5:1, white-on-blue ~5.4:1.
- * The sentence tints are held above 4.5:1 on their ground.
+ * The body tints are held above 4.5:1 on their ground.
+ *
+ * Copy is the client's own, verbatim — see the brand notes. Each beat is one
+ * word, one tagline, one paragraph.
  */
 const SLIDES = [
   {
-    word: "ROOTED",
-    line: "Locally sourced ingredients from Jharkhand's harvest, on every plate.",
+    word: "Global Cuisine",
+    tagline: "Flavours without borders.",
+    body:
+      "Zoi brings together global cuisine, familiar favourites and unexpected flavours in a menu made for every kind of occasion. Thoughtfully crafted food, cocktails and beverages come together in a dining experience that can be as relaxed, indulgent or celebratory as you want it to be.",
     bg: "bg-white",
-    wordColor: "text-navy",
-    lineColor: "text-navy/65",
+    accent: "text-navy",
+    body_: "text-navy/70",
   },
   {
-    word: "CRAFTED",
-    line: "North Indian, Asian, and Continental dishes — each built by hand, to order.",
+    word: "Hospitality",
+    tagline: "A space that meets you where you are.",
+    body:
+      "Zoi changes with you. Bright and easy over lunch, warm and intimate as the evening unfolds, and full of energy when the night comes alive. Thoughtful service, an evolving ambience and a culture built around making people feel comfortable make Zoi a space for family dinners, coffee dates, meetings, solo moments, work and everything in between.",
     bg: "bg-navy",
-    wordColor: "text-orange",
-    lineColor: "text-white/70",
+    accent: "text-orange",
+    body_: "text-white/75",
   },
   {
-    word: "WARM",
-    line: "Low light, long dinners, no rush — modern dining the way Ranchi deserves it.",
+    word: "Experiences",
+    tagline: "Every visit can become a story.",
+    body:
+      "Some evenings call for a great meal. Some call for music, celebration and a little more energy. From curated events and live entertainment to intimate celebrations and nights that turn into something unexpected, Zoi creates experiences designed to be felt — not simply attended. Because what stays with you is rarely just what you ate or where you went, but how you felt while you were there.",
     bg: "bg-blue",
-    wordColor: "text-white",
-    lineColor: "text-white/80",
+    accent: "text-white",
+    body_: "text-white/85",
   },
   {
-    word: "OURS",
-    line: "Ranchi's table at JD Hi Street Mall, Hindpiri — whenever you arrive.",
+    word: "Community",
+    tagline: "Come as you are. Stay for the feeling.",
+    body:
+      "Zoi is a space for everyone — and every version of you. A quiet dinner with your family. Your first coffee date. Drinks with friends. A meeting between two busy days. A moment alone. A celebration that brings everyone together. We believe the places we love are shaped by the people who fill them, and Zoi is built to make every person feel welcomed, acknowledged and part of something.",
     bg: "bg-white",
-    wordColor: "text-navy",
-    lineColor: "text-navy/65",
+    accent: "text-navy",
+    body_: "text-navy/70",
   },
 ] as const;
 
-/** Where the word/sentence morph sits inside each slide's one-unit window. */
-const MORPH_START = 0.12;
-const MORPH_DURATION = 0.6;
+/**
+ * ── The beat, as fractions of each slide's one-unit window ──────────────────
+ *
+ *   0.00 ─ 0.16   the word, at rest
+ *   0.16 ─ 0.36   the morph: word out, tagline and paragraph in
+ *   0.36 ─ 0.86   the copy, at rest  ← half the beat. This is the read.
+ *   0.86 ─ 1.00   the next ground rises over this one
+ *
+ * The previous shape had no copy rest at all: the crossfade began on the same
+ * frame the morph finished, so a paragraph was already dissolving before it
+ * could be read. Now the two rests are the bulk of the beat and the two
+ * transitions are short — which is also what makes the snap below feel like
+ * "either the word or the copy" rather than a continuous morph.
+ */
+const WORD_HOLD = 0.16;
+const MORPH = 0.2;
+const CROSSFADE_AT = 0.86;
+const CROSSFADE = 1 - CROSSFADE_AT;
 
-/** The handover to the next slide, overlapping the tail of the morph. */
-const CROSSFADE_AT = 0.72;
-const CROSSFADE_DURATION = 0.28;
+/**
+ * Where the deck is allowed to come to rest, per slide.
+ *
+ * The ends of each transition, so a scroll that stops mid-morph or
+ * mid-crossfade is carried to the nearer side and never parks on a half-sized
+ * word over a half-faded paragraph. Inside a rest nothing moves, so a stop
+ * anywhere in one is already a clean frame — the browser may still nudge to a
+ * marker there, and the nudge is invisible because the stage is pinned.
+ *
+ * Exported as fractions of the whole timeline (SLIDES.length units) because two
+ * consumers need them: the mobile CSS snap markers rendered into the section,
+ * and the desktop Lenis settle.
+ */
+const REST_POINTS: number[] = (() => {
+  const points = new Set<number>([0]);
+  SLIDES.forEach((_, i) => {
+    points.add(i + WORD_HOLD);
+    points.add(i + WORD_HOLD + MORPH);
+    points.add(i + CROSSFADE_AT);
+    points.add(i + 1);
+  });
+  return [...points].map((p) => Math.min(1, p / SLIDES.length)).sort((a, b) => a - b);
+})();
 
 /** Quiet time after scrolling stops before the deck settles onto a beat. */
 const SETTLE_DELAY_MS = 140;
@@ -72,12 +118,16 @@ const SETTLE_DURATION = 0.55;
 const SETTLE_EPSILON = 2;
 
 /**
- * Section — About. Four word-to-sentence morphs on a pinned stage.
+ * Section — About. Four word-to-copy beats on a pinned stage.
  *
- * Layout: the word sits above, the sentence directly BELOW it — never stacked in
- * the same cell. The sentence begins small, reading as a caption under the word;
- * as the word shrinks and drifts up out of frame the sentence grows into the
- * space it vacates, so one hands off to the other in a single continuous move.
+ * ── Layout: the word and the copy share one cell ────────────────────────────
+ *
+ * Both sit in the same grid cell, each centred on its own. Neither takes
+ * layout room from the other, so the word is dead-centre when it is alone and
+ * the copy is dead-centre when it is alone. The morph moves them only with
+ * transform. Stacking them in a column would push the word up by half the
+ * paragraph's height on every slide — noticeable once the paragraph is seventy
+ * words.
  *
  * ── How the colour change stays seamless ───────────────────────────────────
  *
@@ -93,9 +143,23 @@ const SETTLE_EPSILON = 2;
  * between every beat. The outgoing panel is only hidden once it is fully covered,
  * with a `set` at the end of the handover rather than a second tween.
  *
- * CLAUDE.md forbids animating font-size, so both texts are rendered at their FINAL
- * size and moved only with transform. Both only ever scale DOWN from their laid-out
- * size, which is what keeps them crisp — text scaled above 1 renders soft.
+ * CLAUDE.md forbids animating font-size, so all text is rendered at its FINAL
+ * size and moved only with transform. Everything only ever scales DOWN from its
+ * laid-out size, which is what keeps it crisp — text scaled above 1 renders soft.
+ *
+ * ── Snap: two mechanisms, one per input ─────────────────────────────────────
+ *
+ * On a phone, CSS scroll-snap. Lenis leaves touch on native scroll, so the
+ * browser owns the fling — and native snap is computed INSIDE the fling, the
+ * same way the Ambience carousel lands on a card. Invisible 1px markers are
+ * rendered into the section at every rest point with `snap-start`, and
+ * globals.css turns on `scroll-snap-type: y proximity` for the root below `md`.
+ * Proximity, never mandatory: mandatory on the root would drag the page back to
+ * the nearest marker from anywhere on the site.
+ *
+ * On desktop, the hand-rolled Lenis settle further down. Lenis writes scrollTop
+ * every frame there, so CSS snap would fight it — the settle routes the nudge
+ * through Lenis instead, which keeps it the single writer.
  *
  * Performance notes, because this section is the one that used to stutter:
  *
@@ -103,8 +167,8 @@ const SETTLE_EPSILON = 2;
  *    composited every frame; visibility:hidden drops it from the pipeline entirely.
  *    Three of the four panels are therefore doing no work at any given moment.
  *  - no blanket `will-change`. Twelve permanently-promoted layers carrying display
- *    type at 13vw is a lot of GPU memory and compositing cost for elements that are
- *    idle most of the time. GSAP's force3D promotes each element only while its own
+ *    type is a lot of GPU memory and compositing cost for elements that are idle
+ *    most of the time. GSAP's force3D promotes each element only while its own
  *    tween is actually running.
  *  - `scrub` is a number, not `true`. That decouples the timeline from raw scroll
  *    events and lets it catch up smoothly instead of jumping on every delta.
@@ -125,7 +189,7 @@ export function About() {
     const ctx = gsap.context(() => {
       /*
         Built paused and attached to the ScrollTrigger afterwards, rather than
-        passing `scrollTrigger` inline. That ordering is what lets the snap points
+        passing `scrollTrigger` inline. That ordering is what lets the settle
         below be derived from the timeline's REAL duration instead of a hand-kept
         copy of it that would drift the moment a constant above changes.
       */
@@ -133,39 +197,57 @@ export function About() {
 
       slides.forEach((slide, i) => {
         const word = slide.querySelector<HTMLElement>("[data-word]");
-        const line = slide.querySelector<HTMLElement>("[data-line]");
-        if (!word || !line) return;
+        const tagline = slide.querySelector<HTMLElement>("[data-tagline]");
+        const body = slide.querySelector<HTMLElement>("[data-body]");
+        if (!word || !tagline || !body) return;
 
         gsap.set(slide, { autoAlpha: i === 0 ? 1 : 0 });
+
+        const at = i + WORD_HOLD;
 
         // The word shrinks and lifts away.
         tl.fromTo(
           word,
           { scale: 1, y: 0, opacity: 1 },
           {
-            scale: 0.32,
-            y: "-5vh",
+            scale: 0.55,
+            y: "-8vh",
             opacity: 0,
-            duration: MORPH_DURATION,
+            duration: MORPH,
             ease: "power2.inOut",
             force3D: true,
           },
-          i + MORPH_START
+          at
         );
 
-        // The sentence grows into the space the word just left.
+        // The tagline grows into the space the word just left.
         tl.fromTo(
-          line,
-          { scale: 0.34, y: 0, opacity: 0.35 },
+          tagline,
+          { scale: 0.6, y: "3vh", opacity: 0 },
           {
             scale: 1,
-            y: "-7vh",
+            y: 0,
             opacity: 1,
-            duration: MORPH_DURATION,
+            duration: MORPH,
             ease: "power2.inOut",
             force3D: true,
           },
-          i + MORPH_START
+          at
+        );
+
+        // The paragraph settles in beneath it, a beat behind — so the eye lands
+        // on the tagline first and the reading order is the visual order.
+        tl.fromTo(
+          body,
+          { y: "3vh", opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: MORPH * 0.7,
+            ease: "power2.out",
+            force3D: true,
+          },
+          at + MORPH * 0.3
         );
 
         const next = slides[i + 1];
@@ -177,7 +259,7 @@ export function About() {
           { autoAlpha: 0 },
           {
             autoAlpha: 1,
-            duration: CROSSFADE_DURATION,
+            duration: CROSSFADE,
             ease: "power1.inOut",
           },
           i + CROSSFADE_AT
@@ -185,22 +267,16 @@ export function About() {
 
         // Fully covered by now, so dropping it is invisible — and it takes one
         // more full-screen layer out of the compositor for the rest of the scroll.
-        tl.set(slide, { autoAlpha: 0 }, i + CROSSFADE_AT + CROSSFADE_DURATION);
+        tl.set(slide, { autoAlpha: 0 }, i + CROSSFADE_AT + CROSSFADE);
       });
 
       /*
-        The two rest states of every beat, as timeline progress:
-        the word standing at full size, and the sentence fully grown after the
-        morph. Those are the only places worth stopping — anything between them is
-        a half-finished morph with a half-sized word and a half-sized sentence.
+        Pin the timeline's length to exactly SLIDES.length units. Without this
+        the last slide's copy-rest — which has no crossfade after it to mark its
+        end — would be cut off at the morph, and every REST_POINT fraction would
+        be scaled against the wrong total.
       */
-      const total = tl.duration();
-      const points = [0];
-      SLIDES.forEach((_, i) => {
-        points.push((i + MORPH_START) / total);
-        points.push((i + MORPH_START + MORPH_DURATION) / total);
-      });
-      const snapPoints = [...new Set(points.map((p) => Math.min(1, Math.max(0, p))))];
+      tl.set({}, {}, SLIDES.length);
 
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
@@ -280,16 +356,11 @@ export function About() {
         event is a genuine "the page has stopped moving" signal rather than a
         guess. The settle's own scrolling restarts the debounce; by the time it
         fires again we are already on a rest point and the epsilon check bails.
-      */
-      /*
-        Desktop only.
 
-        A wheel or trackpad scroll stops dead when the user stops, so nudging it
-        onto a beat there reads as polish. A touch scroll does not stop dead — it
-        carries momentum, and a settle that fires 140ms after the finger lifts is
-        pulling against a flick the visitor is still watching. That is the "heavy",
-        "fights me" feeling on a phone. Native momentum is smoother than anything
-        we would impose on top of it, so mobile keeps its own scroll.
+        Desktop only. A phone gets native CSS snap instead — see the section note.
+        A JS settle firing 140ms after a finger lifts pulls against a fling the
+        visitor is still watching, which is the "heavy" feel; native snap is
+        computed inside the fling and never fights it.
       */
       const canSettle = window.matchMedia("(min-width: 768px)").matches;
 
@@ -298,7 +369,7 @@ export function About() {
         if (!canSettle || !st.isActive) return;
 
         const progress = st.progress;
-        const nearest = snapPoints.reduce((best, p) =>
+        const nearest = REST_POINTS.reduce((best, p) =>
           Math.abs(p - progress) < Math.abs(best - progress) ? p : best
         );
 
@@ -345,17 +416,22 @@ export function About() {
         {SLIDES.map((slide) => (
           <div
             key={slide.word}
-            className={`flex min-h-dvh flex-col items-center justify-center gap-8 px-6 text-center ${slide.bg}`}
+            className={`flex min-h-dvh flex-col items-center justify-center gap-6 px-6 py-24 text-center ${slide.bg}`}
           >
             <h2
-              className={`font-display text-[18vw] leading-none ${slide.wordColor} md:text-[13vw]`}
+              className={`font-display text-[12vw] leading-[0.95] uppercase text-balance ${slide.accent} md:text-[8vw]`}
             >
               {slide.word}
             </h2>
             <p
-              className={`max-w-3xl font-display text-[6vw] leading-tight ${slide.lineColor} md:text-[3.2vw]`}
+              className={`max-w-2xl font-display text-[6.5vw] leading-tight text-balance ${slide.accent} md:text-[3vw]`}
             >
-              {slide.line}
+              {slide.tagline}
+            </p>
+            <p
+              className={`max-w-md font-sans text-[4.2vw] leading-relaxed text-pretty md:max-w-xl md:text-lg ${slide.body_}`}
+            >
+              {slide.body}
             </p>
           </div>
         ))}
@@ -368,12 +444,35 @@ export function About() {
       The section's own ground matches the FIRST slide. It is only ever visible for
       the instant before the pin engages, but if it did not match, that instant
       would read as a flash.
+
+      Taller than before — 550svh / 600vh against 400 / 450 — because the copy
+      rest is now half of every beat and a seventy-word paragraph needs scroll
+      distance to be read at a walking pace. Per beat that is ~56svh of scroll
+      spent on the paragraph.
     */
     <section
       ref={sectionRef}
       id="about"
-      className={`relative z-0 h-[400svh] md:h-[450vh] ${SLIDES[0].bg}`}
+      className={`relative z-0 h-[550svh] md:h-[600vh] ${SLIDES[0].bg}`}
     >
+      {/*
+        The mobile snap markers. One per rest point, placed at the scroll offset
+        that corresponds to it: a timeline fraction p maps to scrollY = section
+        top + p × (section height − stage height), and `100% − 100dvh` is
+        exactly that range as this element's containing block sees it. A marker
+        with `snap-start` snaps its own top to the scrollport's top, which lands
+        the timeline on p. They are inert on desktop because the root's
+        `scroll-snap-type` is only set below `md` (globals.css).
+      */}
+      {REST_POINTS.map((p) => (
+        <div
+          key={p}
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 h-px w-px snap-start"
+          style={{ top: `calc(${p} * (100% - 100dvh))` }}
+        />
+      ))}
+
       <div className="sticky top-0 h-dvh overflow-hidden">
         {/*
           The "lift".
@@ -411,33 +510,61 @@ export function About() {
           */
           className="absolute inset-0 [transform:translateY(-25%)] md:[transform:none]"
         >
-        {SLIDES.map((slide, i) => (
-          <div
-            key={slide.word}
-            ref={(el) => {
-              slideRefs.current[i] = el;
-            }}
-            className={`absolute inset-0 flex flex-col items-center justify-center gap-[1.5vh] px-6 text-center md:gap-[2.5vh] ${slide.bg}`}
-            /* Matches the autoAlpha start state so there is no flash of all four
-               words stacked on top of each other before the effect runs. */
-            style={{
-              opacity: i === 0 ? 1 : 0,
-              visibility: i === 0 ? "visible" : "hidden",
-            }}
-          >
-            <h2
-              data-word
-              className={`font-display text-[16vw] leading-[0.9] ${slide.wordColor} md:text-[13vw]`}
+          {SLIDES.map((slide, i) => (
+            <div
+              key={slide.word}
+              ref={(el) => {
+                slideRefs.current[i] = el;
+              }}
+              /*
+                One cell, two occupants — see the layout note above. `px-6` keeps
+                the paragraph off the edges on a 375px phone; the paragraph's own
+                max-width does the rest.
+              */
+              className={`absolute inset-0 grid grid-cols-1 grid-rows-1 place-items-center px-6 text-center ${slide.bg}`}
+              /* Matches the autoAlpha start state so there is no flash of all four
+                 words stacked on top of each other before the effect runs. */
+              style={{
+                opacity: i === 0 ? 1 : 0,
+                visibility: i === 0 ? "visible" : "hidden",
+              }}
             >
-              {slide.word}
-            </h2>
-            <p
-              data-line
-              className={`max-w-3xl font-display text-[5vw] leading-tight ${slide.lineColor} md:text-[3.2vw]`}
-            >
-              {slide.line}
-            </p>
-          </div>
+              {/*
+                Uppercase via CSS, not in the copy — the client wrote the headings
+                in caps and the paragraphs in sentence case, and the accessible
+                name should read as words, not shouting. `text-balance` splits
+                "Global Cuisine" evenly when it has to wrap on a phone.
+              */}
+              <h2
+                data-word
+                className={`col-start-1 row-start-1 font-display text-[12vw] leading-[0.95] uppercase text-balance ${slide.accent} md:text-[8vw]`}
+              >
+                {slide.word}
+              </h2>
+
+              {/*
+                Starts invisible — the inline opacity matches the tween's `from`
+                so the first paint of a slide never shows both states at once.
+              */}
+              <div
+                className="col-start-1 row-start-1 flex max-w-md flex-col items-center gap-5 md:max-w-2xl md:gap-7"
+              >
+                <p
+                  data-tagline
+                  style={{ opacity: 0 }}
+                  className={`font-display text-[6.5vw] leading-tight text-balance ${slide.accent} md:text-[3vw]`}
+                >
+                  {slide.tagline}
+                </p>
+                <p
+                  data-body
+                  style={{ opacity: 0 }}
+                  className={`font-sans text-[4.2vw] leading-relaxed text-pretty md:max-w-xl md:text-lg ${slide.body_}`}
+                >
+                  {slide.body}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       </div>

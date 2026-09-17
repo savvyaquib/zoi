@@ -22,6 +22,27 @@ html {
   scroll-behavior: auto;
 }
 
+/*
+  The About deck's snap, phones only.
+
+  Below `md` Lenis leaves touch on native scroll, so the browser owns the fling
+  and can compute a snap inside it — the same mechanism the Ambience carousel
+  uses to land on a card. The About section renders 1px `snap-start` markers at
+  every rest point; this is what makes the root honour them.
+
+  `proximity`, never `mandatory`. Mandatory on the root would haul the page back
+  to the nearest marker from anywhere on the site — the footer included.
+  Proximity only acts within reach of a marker, which is only inside the deck.
+
+  Not on desktop: Lenis writes scrollTop every frame there and would fight CSS
+  snap. About.tsx settles desktop through Lenis instead.
+*/
+@media (max-width: 767px) {
+  html {
+    scroll-snap-type: y proximity;
+  }
+}
+
 body {
   background-color: var(--color-white);
   color: var(--color-navy);
