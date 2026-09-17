@@ -4,15 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
 import { BRAND, VENUE } from "@/lib/assets";
+import { HOME_LINK, SECTION_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
-/** One entry per real section. Matches the footer's list exactly. */
-const LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Ambience", href: "#ambience" },
-  { label: "Reserve", href: "#reserve" },
-] as const;
 
 const OPEN_DURATION = 0.72;
 /** Closing is faster than opening — the decision is already made. */
@@ -254,7 +248,11 @@ export function Nav() {
   }, [open, reducedMotion]);
 
   const go = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    const target = document.querySelector(href);
+    // Query by the hash alone; the full "/#about" is not a valid selector. No
+    // match means we are on another page — stand down and let the browser
+    // follow the href home.
+    const hash = hashOf(href);
+    const target = hash ? document.querySelector(hash) : null;
     if (!target) return;
     event.preventDefault();
     close();
@@ -279,8 +277,8 @@ export function Nav() {
       {/* The control. Fixed, above the page, below the loader. */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-4 md:px-8 md:py-6">
         <a
-          href="#hero"
-          onClick={(e) => go(e, "#hero")}
+          href={HOME_LINK}
+          onClick={(e) => go(e, HOME_LINK)}
           aria-label="Zoi — back to top"
           tabIndex={open ? -1 : 0}
           /*
@@ -454,7 +452,7 @@ export function Nav() {
         >
           <nav>
             <ul className="flex flex-col">
-              {LINKS.map((link, i) => (
+              {SECTION_LINKS.map((link, i) => (
                 <li key={link.href} className="border-b border-white/10">
                   <a
                     ref={(el) => {

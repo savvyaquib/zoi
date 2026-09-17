@@ -15,6 +15,11 @@ import dynamic from "next/dynamic";
  * Client Components still prerender to HTML, so every section's text ships in the
  * served markup for SEO. Nothing opts out of SSR.
  *
+ * The Footer used to be lazy-loaded from here too. It now lives in layout.tsx so
+ * every page gets it, which means it ships in the initial bundle rather than
+ * this chunk — a few hundred bytes of markup and one click handler, not worth a
+ * second code-split boundary.
+ *
  * ── Why Ambience no longer sets `ssr: false` ────────────────────────────────
  *
  * It used to, on the reasoning that the section is "video plus images with nothing
@@ -45,14 +50,12 @@ const Ambience = dynamic(() =>
 const Reservation = dynamic(() =>
   import("./sections/Reservation").then((m) => m.Reservation)
 );
-const Footer = dynamic(() => import("./sections/Footer").then((m) => m.Footer));
 
 export function BelowFold() {
   return (
     <>
       <Ambience />
       <Reservation />
-      <Footer />
     </>
   );
 }

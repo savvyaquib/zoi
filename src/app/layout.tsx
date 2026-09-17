@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { OG_IMAGE, SITE_URL, VENUE } from "@/lib/assets";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { Nav } from "@/components/Nav";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { Footer } from "@/components/sections/Footer";
 import "./globals.css";
 
 /** Display face for the huge scroll words. Its true italic also covers the
@@ -185,7 +189,22 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
         />
-        {children}
+        {/*
+          The chrome every page shares: smooth scroll, the nav, the progress bar,
+          the footer. Pages supply only their own <main>.
+
+          The loader and its PreloadProvider are deliberately NOT here. They gate
+          on the hero's stills and video, so they belong to the home page alone —
+          a menu or careers page has nothing to wait for and should not open on a
+          three-second curtain. Nav and Footer read Lenis only, never the
+          preloader, which is what lets them sit above it.
+        */}
+        <SmoothScroll>
+          <Nav />
+          <ScrollProgress />
+          {children}
+          <Footer />
+        </SmoothScroll>
       </body>
     </html>
   );

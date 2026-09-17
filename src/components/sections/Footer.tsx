@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { BRAND, VENUE } from "@/lib/assets";
+import { SECTION_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
 import { BUTTON_MOTION } from "@/lib/reservation";
 
@@ -12,12 +13,6 @@ import { BUTTON_MOTION } from "@/lib/reservation";
  * lies about where it goes. "Gallery" was a second link to the same #ambience
  * beat under a different name. Both removed rather than left as decoration.
  */
-const QUICK_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Ambience", href: "#ambience" },
-  { label: "Reserve", href: "#reserve" },
-];
-
 const WHATSAPP_URL = `https://wa.me/${VENUE.phoneRaw.replace(/\D/g, "")}`;
 
 /**
@@ -56,7 +51,10 @@ export function Footer() {
   const lenisRef = useLenisRef();
 
   const scrollTo = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    const target = document.querySelector(href);
+    // See links.ts: query by hash; no match means another page, so let the
+    // browser follow the full href home.
+    const hash = hashOf(href);
+    const target = hash ? document.querySelector(hash) : null;
     if (!target) return;
     event.preventDefault();
     // Read at click time — the instance is created in a parent effect.
@@ -96,7 +94,7 @@ export function Footer() {
               Quick Links
             </h2>
             <ul className="mt-5 flex flex-col gap-3">
-              {QUICK_LINKS.map((link) => (
+              {SECTION_LINKS.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
