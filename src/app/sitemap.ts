@@ -14,8 +14,8 @@ const LAST_CONTENT_CHANGE = new Date("2026-09-01");
 /**
  * Served at /sitemap.xml, generated at build time.
  *
- * One entry, because there is one URL. The #about / #ambience / #reserve targets
- * are fragments of this page, not separate documents — listing them would claim
+ * The home page and /careers. The #about / #ambience / #reserve targets are
+ * fragments of the home page, not separate documents — listing them would claim
  * pages that do not exist and invite index-bloat warnings in Search Console.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -25,6 +25,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_CONTENT_CHANGE,
       changeFrequency: "monthly",
       priority: 1,
+    },
+    {
+      url: `${SITE_URL}/careers`,
+      lastModified: LAST_CONTENT_CHANGE,
+      changeFrequency: "monthly",
+      priority: 0.4,
     },
   ];
 }

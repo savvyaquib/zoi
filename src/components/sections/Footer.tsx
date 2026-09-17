@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { BRAND, VENUE } from "@/lib/assets";
-import { SECTION_LINKS, hashOf } from "@/lib/links";
+import { FOOTER_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
 import { BUTTON_MOTION } from "@/lib/reservation";
 
@@ -94,7 +94,7 @@ export function Footer() {
               Quick Links
             </h2>
             <ul className="mt-5 flex flex-col gap-3">
-              {SECTION_LINKS.map((link) => (
+              {FOOTER_LINKS.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}

@@ -17,7 +17,10 @@
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "ui-ux-pro-max-cli": "^2.15.0"
+    "resend": "^6.28.1",
+    "server-only": "^0.0.1",
+    "ui-ux-pro-max-cli": "^2.15.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

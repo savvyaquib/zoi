@@ -1,6 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      /*
+        Server Actions refuse bodies over 1 MB by default, which would fail every
+        résumé upload before the action even ran. 4 MB fits a generous résumé
+        and stays under Vercel's 4.5 MB hard cap on function request bodies —
+        the multipart framing costs ~10-20 KB on top of the file itself.
+      */
+      bodySizeLimit: "4mb",
+    },
+  },
   images: {
     /*
       WebP only, deliberately.
