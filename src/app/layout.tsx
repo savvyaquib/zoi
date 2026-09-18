@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Maven_Pro } from "next/font/google";
 import localFont from "next/font/local";
 import { OG_IMAGE, SITE_URL, VENUE } from "@/lib/assets";
 import { SmoothScroll } from "@/components/SmoothScroll";
@@ -39,10 +39,19 @@ const glorify = localFont({
   ],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+/**
+ * Maven Pro — the body face the brand pack pairs with Glorify: the same soft,
+ * rounded warmth at text sizes, where Inter read as an app's UI under a
+ * restaurant's heading. The Google Fonts cut is a variable font, so this is
+ * ONE self-hosted, Latin-subsetted file for every weight from 400 to 900 —
+ * smaller than Inter's single file was — with no request to Google at
+ * runtime. Like Glorify it has no italic; nothing in the body asks for one.
+ */
+const mavenPro = Maven_Pro({
+  variable: "--font-maven",
   subsets: ["latin"],
   display: "swap",
+  weight: "variable",
 });
 
 /**
@@ -210,7 +219,7 @@ const restaurantSchema = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${glorify.variable} ${inter.variable} antialiased`}>
+    <html lang="en" className={`${glorify.variable} ${mavenPro.variable} antialiased`}>
       {/*
         Grammarly and its kind write their own attributes onto <body> before
         React hydrates; React then reports a mismatch that is not ours. The
