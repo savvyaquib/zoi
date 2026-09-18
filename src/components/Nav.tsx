@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
@@ -335,7 +336,22 @@ export function Nav() {
             {VENUE.instagram}
           </a>
 
-          {/* Hairline, so the handle and the toggle read as two separate controls. */}
+          <span aria-hidden="true" className="h-5 w-px bg-navy/15" />
+
+          {/*
+            The menu, one tap from anywhere. It is the page most visitors came
+            for, and it used to sit a level down, behind the toggle; it stays
+            there too, in the list, for anyone who opens it. Orange because it
+            is a link, not a button — "Reserve" keeps the one filled control.
+          */}
+          <Link
+            href="/menu"
+            className="rounded-full font-sans text-sm font-medium tracking-[0.02em] text-orange transition-colors duration-200 ease-out hover:text-navy focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:text-base"
+          >
+            Menu
+          </Link>
+
+          {/* Hairlines, so the handle, the link and the toggle read as three controls. */}
           <span aria-hidden="true" className="h-5 w-px bg-navy/15" />
 
           <button

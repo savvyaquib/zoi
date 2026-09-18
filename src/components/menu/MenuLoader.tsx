@@ -21,10 +21,10 @@ const PHRASES = [
 ] as const;
 
 /**
- * The menu's preloader — the home page's, on paper.
- *
- * Same family as `sections/Loading`: the mark, a line that fills by `scaleX`,
- * a status phrase keyed to real progress. What it waits for is what the reader
+ * The menu's preloader — the home page's, exactly: navy, the cream mark, the
+ * orange line that fills by `scaleX`, the counter, a status phrase keyed to
+ * real progress. One loader for the whole site, so leaving the home page for
+ * the menu does not feel like leaving the site. What it waits for is what the reader
  * would otherwise watch arrive one by one: the three menu faces, and every
  * image marked `data-critical` — the cover drawing and the first section's
  * photograph and illustration. Nothing below the fold is gated; that loads as
@@ -51,6 +51,8 @@ export function MenuLoader({
   const logoRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
   const barFillRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const counterValue = useRef({ value: 0 });
   const phraseRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   const [progress, setProgress] = useState(0);
@@ -144,10 +146,19 @@ export function MenuLoader({
     return () => ctx.revert();
   }, [reducedMotion]);
 
-  // The line eases toward the true ratio rather than stepping.
+  // The line and the counter ease toward the true ratio rather than stepping.
   useEffect(() => {
-    if (!barFillRef.current) return;
-    const tween = gsap.to(barFillRef.current, { scaleX: progress, duration: 0.5, ease: "power2.out", overwrite: true });
+    const tween = gsap.to(counterValue.current, {
+      value: progress,
+      duration: 0.5,
+      ease: "power2.out",
+      overwrite: true,
+      onUpdate: () => {
+        const v = counterValue.current.value;
+        if (counterRef.current) counterRef.current.textContent = String(Math.round(v * 100));
+        if (barFillRef.current) gsap.set(barFillRef.current, { scaleX: v });
+      },
+    });
     return () => {
       tween.kill();
     };
@@ -182,7 +193,7 @@ export function MenuLoader({
     const ctx = gsap.context(() => {
       gsap
         .timeline({ delay: 0.25, onComplete: onDone })
-        .to([logoRef.current, groupRef.current], { opacity: 0, duration: 0.25, ease: "power2.out" })
+        .to([logoRef.current, groupRef.current, counterRef.current], { opacity: 0, duration: 0.25, ease: "power2.out" })
         .to(rootRef.current, { yPercent: -100, duration: 0.7, ease: "power3.inOut" }, "-=0.05")
         // A third of the way through the wipe the top of the page is clear.
         .call(onLift, [], "-=0.45");
@@ -199,11 +210,10 @@ export function MenuLoader({
       aria-valuemax={100}
       aria-valuenow={Math.round(progress * 100)}
       aria-valuetext={PHRASES[activePhrase]?.text}
-      className="fixed inset-0 z-100 flex items-center justify-center bg-menu-paper bg-[url('/assets/menu/paper.jpg')] bg-[length:342px_342px] bg-repeat will-change-transform"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-navy will-change-transform"
     >
       <div className="flex flex-col items-center px-6">
-        {/* The mark is drawn cream for the navy hero; brightness(0) makes it ink and keeps its alpha. */}
-        <div ref={logoRef} className="w-[112px] md:w-[150px]">
+        <div ref={logoRef} className="w-[130px] md:w-[180px]">
           <Image
             src={BRAND.logo.src}
             alt="Zoi"
@@ -211,15 +221,15 @@ export function MenuLoader({
             height={BRAND.logo.height}
             priority
             sizes="(min-width: 768px) 150px, 112px"
-            className="h-auto w-full [filter:brightness(0)]"
+            className="h-auto w-full"
           />
         </div>
 
         <div ref={groupRef} className="flex flex-col items-center">
-          <div className="mt-7 h-px w-[200px] max-w-[56vw] overflow-hidden bg-menu-red/15">
+          <div className="mt-8 h-0.5 w-[220px] max-w-[60vw] overflow-hidden bg-white/15">
             <div
               ref={barFillRef}
-              className="h-full w-full origin-left bg-menu-red will-change-transform"
+              className="h-full w-full origin-left bg-orange will-change-transform"
               style={{ transform: "scaleX(0)" }}
             />
           </div>
@@ -233,7 +243,7 @@ export function MenuLoader({
                   phraseRefs.current[i] = el;
                 }}
                 aria-hidden="true"
-                className="absolute inset-x-0 top-0 flex items-center justify-center font-sans text-[10px] tracking-[0.3em] whitespace-nowrap text-menu-ink/60 uppercase md:text-[11px]"
+                className="absolute inset-x-0 top-0 flex items-center justify-center font-sans text-[10px] tracking-[0.3em] whitespace-nowrap text-white/60 uppercase md:text-[11px]"
                 style={{ opacity: i === 0 ? 1 : 0 }}
               >
                 {phrase.text}
@@ -249,6 +259,14 @@ export function MenuLoader({
           </div>
         </div>
       </div>
+
+      <span
+        ref={counterRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute right-6 bottom-2 font-display text-[22vw] leading-[0.8] font-normal text-white/15 select-none md:right-12 md:bottom-4 md:text-[14vw]"
+      >
+        0
+      </span>
     </div>
   );
 }
