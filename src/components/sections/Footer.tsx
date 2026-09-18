@@ -108,7 +108,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className={`mt-5 inline-flex items-center gap-3 rounded-full border border-white/20 py-2.5 pr-5 pl-3 font-sans text-sm text-white/85 transition-colors duration-150 ease-out hover:border-orange hover:text-orange focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none ${BUTTON_MOTION}`}
             >
-              <InstagramIcon />
+              <InstagramIcon variant="tile" />
               {VENUE.instagram}
             </a>
 
