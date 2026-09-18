@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { OG_IMAGE, SITE_URL, VENUE } from "@/lib/assets";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Nav } from "@/components/Nav";
@@ -7,12 +8,35 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { Footer } from "@/components/sections/Footer";
 import "./globals.css";
 
-/** Display face for the huge scroll words. Its true italic also covers the
- *  script-style reservation heading, so no third font is needed. */
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
+/**
+ * Glorify — Zoi's own display face, the one the wordmark is drawn in. Used for
+ * the huge scroll words and every heading outside the menu.
+ *
+ * Self-hosted from /src/fonts as WOFF2 (12 KB a weight, against 28 KB for the
+ * TTFs the client supplied; the pack itself is kept in /fonts as the source).
+ * Four weights are declared so the family answers to any weight utility; the
+ * site sets its display type at 400 today. next/font preloads every file
+ * listed here on every page, which is why the four lighter and heavier cuts
+ * in the pack are not — add one here the day a design calls for it.
+ *
+ * There is no italic in the family. Where the site asks for one (the small
+ * label above a heading, the footer line) the browser slants the upright, and
+ * that is the intended look now, not the calligraphic italic Playfair had.
+ *
+ * adjustFontFallback writes a metrics-matched fallback so the line boxes are
+ * the same size before and after the font lands — no shift on swap.
+ */
+const glorify = localFont({
+  variable: "--font-glorify",
   display: "swap",
+  adjustFontFallback: "Times New Roman",
+  fallback: ["Georgia", "serif"],
+  src: [
+    { path: "../fonts/Glorify-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/Glorify-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/Glorify-SemiBold.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/Glorify-Bold.woff2", weight: "700", style: "normal" },
+  ],
 });
 
 const inter = Inter({
@@ -186,7 +210,7 @@ const restaurantSchema = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} antialiased`}>
+    <html lang="en" className={`${glorify.variable} ${inter.variable} antialiased`}>
       {/*
         Grammarly and its kind write their own attributes onto <body> before
         React hydrates; React then reports a mismatch that is not ours. The
