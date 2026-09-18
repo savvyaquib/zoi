@@ -187,7 +187,12 @@ const restaurantSchema = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} antialiased`}>
-      <body>
+      {/*
+        Grammarly and its kind write their own attributes onto <body> before
+        React hydrates; React then reports a mismatch that is not ours. The
+        suppression covers this element's attributes only, nothing below it.
+      */}
+      <body suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}

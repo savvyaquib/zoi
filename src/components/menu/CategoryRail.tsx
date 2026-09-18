@@ -54,12 +54,23 @@ export function CategoryRail({ entries }: { entries: Entry[] }) {
     return () => io.disconnect();
   }, [entries]);
 
-  // Keep the highlighted chip visible in the strip.
+  /*
+    Keep the highlighted chip centred in the strip.
+
+    Measured with rects, not offsetLeft. The rail is not positioned, so
+    offsetLeft reports from the nearest positioned ancestor — the sticky
+    wrapper, which is the full viewport wide. On a phone the two coincide; on
+    desktop the rail is a centred 896px box, and the 272px of margin between
+    them sent every active chip to the left edge, under the fade.
+  */
   useEffect(() => {
     const chip = active ? chipRefs.current.get(active) : undefined;
     const rail = railRef.current;
     if (!chip || !rail) return;
-    const left = chip.offsetLeft - rail.clientWidth / 2 + chip.offsetWidth / 2;
+    const railBox = rail.getBoundingClientRect();
+    const chipBox = chip.getBoundingClientRect();
+    const chipLeft = rail.scrollLeft + (chipBox.left - railBox.left);
+    const left = chipLeft - rail.clientWidth / 2 + chipBox.width / 2;
     rail.scrollTo({ left, behavior: "smooth" });
   }, [active]);
 
