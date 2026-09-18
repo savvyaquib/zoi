@@ -30,7 +30,7 @@ export default function CareersPage() {
   return (
     <main className="bg-navy text-white">
       <div className="mx-auto max-w-2xl px-5 pt-28 pb-24 md:px-8 md:pt-40 md:pb-32">
-        <p className="font-display text-2xl text-blue italic md:text-3xl">Careers</p>
+        <p className="font-display text-2xl text-orange italic md:text-3xl">Careers</p>
         <h1 className="mt-2 font-display text-4xl leading-[1.05] md:text-6xl">
           Work at {VENUE.name}
         </h1>

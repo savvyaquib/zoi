@@ -138,7 +138,7 @@ export function Reservation() {
         </div>
 
         <div className="flex flex-col justify-center">
-          <p className="font-display text-3xl text-blue italic md:text-4xl">
+          <p className="font-display text-3xl text-orange italic md:text-4xl">
             Reserve Your Table
           </p>
           <h2 className="mt-2 font-display text-4xl leading-[1.05] md:text-6xl">
@@ -304,14 +304,14 @@ export function Reservation() {
                     href={sentTo}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue underline underline-offset-4"
+                    className="text-orange underline underline-offset-4"
                   >
                     open the chat
                   </a>{" "}
                   or call{" "}
                   <a
                     href={`tel:${VENUE.phoneRaw}`}
-                    className="text-blue underline underline-offset-4"
+                    className="text-orange underline underline-offset-4"
                   >
                     {VENUE.phone}
                   </a>

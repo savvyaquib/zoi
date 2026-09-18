@@ -214,7 +214,7 @@ function ApplicationForm() {
         role="status"
         className="rounded-2xl border border-white/12 bg-white/4 p-8 focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:p-10"
       >
-        <p className="font-display text-2xl text-blue italic md:text-3xl">Sent.</p>
+        <p className="font-display text-2xl text-orange italic md:text-3xl">Sent.</p>
         <h2 className="mt-2 font-display text-3xl leading-tight md:text-4xl">
           Your application is with the team.
         </h2>
