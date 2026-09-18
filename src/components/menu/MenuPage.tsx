@@ -16,8 +16,8 @@ import { MenuReveal } from "./MenuReveal";
  *
  * ── Fidelity to the print ───────────────────────────────────────────────────
  *
- * Section headings in the display face, red, large — serif for food, script
- * for bar, as the two menus are. Sub-groups under a small red bold label with
+ * Section headings in the bar card's script face, red, large, on both cards
+ * (the print's serif survives only on the masthead). Sub-groups under a small red bold label with
  * the veg / non-veg square. Item names bold uppercase sans, price bold on the
  * same line, description in the regular weight beneath. Two columns from `md`
  * up, one on a phone. The drawing printed beside each section sits beside it
@@ -245,13 +245,15 @@ function Section({
       */}
       <div className="md:grid md:grid-cols-[1fr_11rem] md:gap-x-10">
         <div className="flex items-center justify-between gap-5 md:contents">
+          {/*
+            The bar card's hand-lettered face on both cards. The print sets
+            the food headings in a serif, but the client preferred the one
+            voice across the two menus; the serif stays on the masthead's
+            "Menu" alone.
+          */}
           <h2
             id={`${section.id}-title`}
-            className={`text-menu-red text-balance md:col-start-1 md:row-start-1 ${
-              script
-                ? "font-menu-script text-[2.75rem] leading-[0.95] font-semibold md:text-[3.5rem]"
-                : "font-menu-display text-[2.25rem] leading-[1.05] font-medium md:text-[2.9rem]"
-            }`}
+            className="font-menu-script text-[2.75rem] leading-[0.95] font-semibold text-menu-red text-balance md:col-start-1 md:row-start-1 md:text-[3.5rem]"
           >
             {section.title}
           </h2>
@@ -292,7 +294,7 @@ function Closing({ closing }: { closing: NonNullable<Menu["closing"]> }) {
         <div>
           <h2
             id="closing-title"
-            className="font-menu-display text-[2.5rem] leading-[1.05] font-medium text-menu-red text-balance md:text-[3.25rem]"
+            className="font-menu-script text-[2.75rem] leading-[0.95] font-semibold text-menu-red text-balance md:text-[3.5rem]"
           >
             {closing.title}
           </h2>
