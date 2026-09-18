@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
-import { AMBIENCE_GALLERY, HERO_VIDEO } from "@/lib/assets";
+import { AMBIENCE_BANNER, AMBIENCE_GALLERY } from "@/lib/assets";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -18,7 +18,7 @@ const WIPE_END = 0.56;
  *
  * ── Desktop: pinned stage, one scrubbed timeline ───────────────────────────
  *
- *   0.00 - 0.30   the loop plays full-bleed
+ *   0.00 - 0.30   the reception still, full-bleed
  *   0.30 - 0.56   a white panel slides in FROM THE RIGHT across it, carrying the
  *                 headline and the cards with it — they ride in, they do not fade
  *   0.44 - 0.62   the cards pop the last few percent into place, staggered
@@ -30,7 +30,7 @@ const WIPE_END = 0.56;
  *
  * ── Mobile: no pin, no scrub, no scroll-jacking ────────────────────────────
  *
- * The reference does not pin on a phone and neither do we. The video is a band at
+ * The reference does not pin on a phone and neither do we. The still is a band at
  * the top, the headline sits under it, and the cards are a NATIVE horizontal
  * scroller with snap points: swipe it if you want the gallery, or keep scrolling
  * vertically past it if you don't. Nothing traps the page.
@@ -42,16 +42,13 @@ const WIPE_END = 0.56;
  * these gestures — see the note on the scroller for why it must NOT be marked
  * `data-lenis-prevent`.
  *
- * ── The video ──────────────────────────────────────────────────────────────
+ * ── The opening image ───────────────────────────────────────────────────────
  *
- * Deliberately the HERO encode. The ambience folder used to ship its own
- * `hero.mp4`, but it was a byte-identical copy of the hero video (verified by
- * md5) that still carried the letterbox bars, so it was deleted rather than
- * wired up. Pointing at the hero URL means the HTTP cache serves it and nothing
- * is downloaded twice.
- *
- * It is still the same footage in two places on one page — swap in real ambience
- * footage here when it exists.
+ * A still of the reception, not a loop. This section used to reuse the hero
+ * video, which put the same footage in two places on one page; the client
+ * supplied the banner instead. A still is also the cheaper thing by far — no
+ * decode, no play/pause bookkeeping, one responsive image request sized to
+ * the viewport like every other photograph on the site.
  */
 export function Ambience() {
   const reducedMotion = useReducedMotion();
@@ -59,48 +56,11 @@ export function Ambience() {
 
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
-
-  /**
-   * One encode, chosen in JS, plus play/pause on visibility so we are never
-   * decoding a 1080p loop that is scrolled off screen.
-   */
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const wide = window.matchMedia(`(min-width: ${HERO_VIDEO.breakpoint}px)`).matches;
-    const chosen = wide ? HERO_VIDEO.desktop : HERO_VIDEO.mobile;
-    if (video.getAttribute("src") !== chosen) {
-      video.setAttribute("src", chosen);
-    }
-
-    if (reducedMotion) return;
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.play().catch(() => {
-            /* autoplay refused — poster stays */
-          });
-        } else {
-          video.pause();
-        }
-      },
-      { threshold: 0.01 }
-    );
-    io.observe(video);
-
-    return () => {
-      io.disconnect();
-      video.pause();
-    };
-  }, [reducedMotion, isDesktop]);
 
   /** Desktop only — the pinned, scrubbed stage. */
   useEffect(() => {
@@ -212,7 +172,7 @@ export function Ambience() {
 
   const headlineText = (
     <>
-      Where every night becomes a <span className="text-orange">story.</span>
+      Every moment finds its place at <span className="text-orange">Zoi</span>
     </>
   );
 
@@ -225,21 +185,20 @@ export function Ambience() {
   if (!isDesktop || reducedMotion) {
     return (
       <section ref={sectionRef} id="ambience" className="bg-navy">
-        <video
-          ref={videoRef}
-          className="block h-[38svh] w-full object-cover"
-          poster={HERO_VIDEO.poster}
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden="true"
-          tabIndex={-1}
-        />
+        <div className="relative h-[38svh] w-full">
+          <Image
+            src={AMBIENCE_BANNER.src}
+            alt={AMBIENCE_BANNER.alt}
+            fill
+            sizes="100vw"
+            loading="lazy"
+            className="object-cover"
+          />
+        </div>
 
         {/*
-          Flush against the video, square-cornered. A rounded, overlapping card
-          was tried here and read as the panel sitting heavily on the loop; that
+          Flush against the image, square-cornered. A rounded, overlapping card
+          was tried here and read as the panel sitting heavily on the photograph; that
           treatment now lives on the Reservation section instead, where navy over
           this white block is the stronger contrast for it.
         */}
@@ -344,17 +303,14 @@ export function Ambience() {
   return (
     <section ref={sectionRef} id="ambience" className="relative h-[420vh] bg-navy">
       <div ref={stageRef} className="sticky top-0 h-dvh w-full overflow-hidden bg-navy">
-        {/* Beat 1 — the loop, full-bleed. */}
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover"
-          poster={HERO_VIDEO.poster}
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden="true"
-          tabIndex={-1}
+        {/* Beat 1 — the reception, full-bleed. */}
+        <Image
+          src={AMBIENCE_BANNER.src}
+          alt={AMBIENCE_BANNER.alt}
+          fill
+          sizes="100vw"
+          loading="lazy"
+          className="object-cover"
         />
 
         {/*

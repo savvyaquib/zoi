@@ -135,6 +135,19 @@ export const HERO_VIDEO = {
 } as const;
 
 /**
+ * The still that opens the Ambience section — the reception, the lit mark
+ * between the two arches. Delivered as a 2.7 MB PNG; re-encoded once to
+ * mozjpeg at q78 (234 KB, 1536x1024) and served through next/image like every
+ * other photograph, so a phone gets a 640px WebP of it, not the master.
+ */
+export const AMBIENCE_BANNER = {
+  src: "/assets/ambience/ambience-banner.jpg",
+  width: 1536,
+  height: 1024,
+  alt: "The reception at Zoi — the lit Zoi mark on a plaster wall between two carved wooden arches",
+} as const;
+
+/**
  * Ambience gallery panels, in the order they were delivered.
  *
  * All seven are 1600x2400 — a clean 2:3 portrait, which is why the cards are laid
