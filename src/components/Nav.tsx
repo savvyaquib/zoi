@@ -7,6 +7,7 @@ import { gsap } from "@/lib/gsap";
 import { BRAND, VENUE } from "@/lib/assets";
 import { HOME_LINK, NAV_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
+import { InstagramIcon } from "@/components/InstagramIcon";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const OPEN_DURATION = 0.72;
@@ -327,22 +328,11 @@ export function Nav() {
           actually reads as at its size.
         */}
         <div className="pointer-events-auto relative z-60 flex items-center gap-3 rounded-[22px] bg-white py-2 pr-2 pl-5 md:gap-5 md:py-2.5 md:pr-2.5 md:pl-7">
-          <a
-            href={VENUE.instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full font-sans text-sm tracking-[0.02em] text-navy transition-colors duration-200 ease-out hover:text-orange focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:text-base"
-          >
-            {VENUE.instagram}
-          </a>
-
-          <span aria-hidden="true" className="h-5 w-px bg-navy/15" />
-
           {/*
-            The menu, one tap from anywhere. It is the page most visitors came
-            for, and it used to sit a level down, behind the toggle; it stays
-            there too, in the list, for anyone who opens it. Orange because it
-            is a link, not a button — "Reserve" keeps the one filled control.
+            Three controls, in the order they matter: the menu — the page most
+            visitors came for — first; Instagram beside the toggle, the two
+            utilities together at the pill's tapered end. Menu is orange because
+            it is a link, not a button — "Reserve" keeps the one filled control.
           */}
           <Link
             href="/menu"
@@ -351,7 +341,26 @@ export function Nav() {
             Menu
           </Link>
 
-          {/* Hairlines, so the handle, the link and the toggle read as three controls. */}
+          <span aria-hidden="true" className="h-5 w-px bg-navy/15" />
+
+          {/*
+            The glyph alone on a phone, the glyph and the handle from md. The
+            handle is real content — it is the name people remember — but on a
+            375px screen the pill has no room to spell it; the glyph is the same
+            control at the size the space allows. The label keeps the handle for
+            screen readers on every width.
+          */}
+          <a
+            href={VENUE.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Zoi on Instagram, ${VENUE.instagram}`}
+            className="flex h-11 items-center gap-2 rounded-full font-sans text-sm tracking-[0.02em] text-navy transition-colors duration-200 ease-out hover:text-orange focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:text-base"
+          >
+            <InstagramIcon className="h-[22px] w-[22px] md:h-5 md:w-5" />
+            <span className="hidden md:inline">{VENUE.instagram}</span>
+          </a>
+
           <span aria-hidden="true" className="h-5 w-px bg-navy/15" />
 
           <button

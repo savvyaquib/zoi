@@ -5,6 +5,7 @@ import { BRAND, VENUE } from "@/lib/assets";
 import { FOOTER_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
 import { BUTTON_MOTION } from "@/lib/reservation";
+import { InstagramIcon } from "@/components/InstagramIcon";
 
 /**
  * Only the sections that actually exist, in the order you meet them.
@@ -14,38 +15,6 @@ import { BUTTON_MOTION } from "@/lib/reservation";
  * beat under a different name. Both removed rather than left as decoration.
  */
 const WHATSAPP_URL = `https://wa.me/${VENUE.phoneRaw.replace(/\D/g, "")}`;
-
-/**
- * The Instagram glyph, drawn as strokes rather than one long filled path.
- *
- * It is the real mark — rounded square, concentric lens, offset dot — at the
- * proportions Instagram actually uses, so it reads correctly at 20px instead of
- * approximating the shape. Stroked also means it inherits weight sensibly and
- * stays crisp at any size.
- *
- * Facebook and X used to sit beside this, pointed at bare `facebook.com` and
- * `x.com`. Those are not Zoi's accounts — they were placeholder links that would
- * have sent guests to a login page. Instagram is the only channel CLAUDE.md
- * lists, so it is the only one here.
- */
-function InstagramIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="2.5" y="2.5" width="19" height="19" rx="5.4" />
-      <circle cx="12" cy="12" r="4.1" />
-      <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
 
 export function Footer() {
   const lenisRef = useLenisRef();
