@@ -1,14 +1,14 @@
 /**
  * The Instagram mark, in two weights.
  *
- * `outline` — the camera as strokes, painted in Instagram's gradient. For the
- * nav pill: recognisable by colour alone, but with the visual weight of the
- * orange "Menu" beside it rather than a solid block that would out-shout the
- * one link that matters.
+ * `outline` — the camera as strokes, painted in Instagram's gradient. The
+ * one used on the site, in the nav pill and the footer alike: recognisable by
+ * colour alone, with the visual weight of the text beside it rather than a
+ * solid block that would out-shout the links that matter.
  *
- * `tile` — the app tile, the gradient rounded square with the white camera,
- * the mark people know at a glance. For the footer, where it sits in a
- * bordered pill beside the handle and reads as a button.
+ * `tile` — the app tile, the gradient rounded square with the white camera.
+ * Kept for anywhere the mark must stand alone with no text beside it; nothing
+ * on the site uses it today.
  *
  * Both are drawn inline at the proportions the official mark uses, so they
  * read correctly at 20px. The gradient is Instagram's, not ours — a third-
