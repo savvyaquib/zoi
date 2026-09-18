@@ -23,6 +23,12 @@ const nextConfig: NextConfig = {
       first-visit encoding to lose.
     */
     formats: ["image/webp"],
+    /*
+      75 is the site's default. 55 exists for the menu's drawings only: they
+      are spot illustrations at 96–176px, watercolour grain that lossy WebP
+      spends bytes on at 75 for no visible return at that size.
+    */
+    qualities: [55, 75],
   },
   async headers() {
     return [

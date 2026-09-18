@@ -11,6 +11,19 @@
 
 export type Diet = "veg" | "non-veg";
 
+/**
+ * One of the printed menu's drawings, cut from the PDF with its paper ground
+ * made transparent. Path under /assets/menu, with intrinsic size for next/image.
+ */
+export type Art = {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  /** A wide drawing (the row of shot glasses) is given more room than a tall one. */
+  wide?: boolean;
+};
+
 export type MenuItem = {
   name: string;
   description?: string;
@@ -41,6 +54,12 @@ export type MenuGroup = {
   diet?: Diet;
   /** Column headings when items carry `prices` — ["VEG", "EGG", "CHICKEN"]. */
   priceLabels?: string[];
+  /**
+   * A second drawing the print gives this sub-group on its own page — the blue
+   * glass on the Signature Rum / Gin / Tequila page, the arch on the Indian
+   * Mains non-veg page. Small, beside the label.
+   */
+  art?: Art;
   items: MenuItem[];
 };
 
@@ -48,8 +67,8 @@ export type MenuSection = {
   /** URL-safe, used for the category rail and deep links. */
   id: string;
   title: string;
-  /** Path under /assets/menu, with intrinsic size for next/image. */
-  art?: { src: string; width: number; height: number; alt: string };
+  /** The drawing printed beside this section's heading. */
+  art?: Art;
   /**
    * A photograph that opens the section, full width — the print menu places
    * three of these as spreads before Soups, Dim Sum and Biryani.
@@ -64,4 +83,16 @@ export type Menu = {
   /** The small-print line under every page of the printed menu. */
   disclaimer: string;
   sections: MenuSection[];
+  /**
+   * The back page. The food menu closes on an invitation to host a
+   * celebration; the bar menu has no equivalent page.
+   */
+  closing?: {
+    title: string;
+    body: string[];
+    art: Art;
+    /** Contact printed on that page — kept as printed, with its own number. */
+    phone?: string;
+    email?: string;
+  };
 };

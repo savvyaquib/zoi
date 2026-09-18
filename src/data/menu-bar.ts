@@ -20,7 +20,7 @@ export const BAR_MENU: Menu = {
     {
       id: "signature-cocktails",
       title: "Zoi Signature & Crafted Cocktails",
-      art: { src: "/assets/menu/bar-signature.jpg", width: 360, height: 516, alt: "" },
+      art: { src: "/assets/menu/bar-signature.png", width: 360, height: 494, alt: "" },
       groups: [
         {
           label: "Signature Collection",
@@ -40,6 +40,7 @@ export const BAR_MENU: Menu = {
         },
         {
           label: "Signature Rum",
+          art: { src: "/assets/menu/bar-signature-blue.png", width: 408, height: 600, alt: "" },
           items: [
             { name: "Zoi Tiki", price: 549, description: "Dark and light rum, orange juice, pineapple and grenadine — vibrant, exotic and festive." },
             // TODO client: the PDF repeats Botanic Breeze's gin description under this mojito.
@@ -72,7 +73,7 @@ export const BAR_MENU: Menu = {
     {
       id: "mixologist",
       title: "Mixologist's Recommendations",
-      art: { src: "/assets/menu/bar-mixologist.jpg", width: 576, height: 900, alt: "" },
+      art: { src: "/assets/menu/bar-mixologist.png", width: 512, height: 800, alt: "" },
       groups: [
         {
           label: "Whiskey Based",
@@ -83,6 +84,7 @@ export const BAR_MENU: Menu = {
         },
         {
           label: "Vodka Based",
+          art: { src: "/assets/menu/bar-mixologist-coupe.png", width: 348, height: 540, alt: "" },
           items: [
             { name: "Jewel of Jharkhand", price: 549, description: "Vodka, fresh lime, cucumber, mint and soda — crisp, invigorating and locally inspired." },
             { name: "Blue Serenity", price: 549, description: "Vodka, lavender syrup, lime and ginger ale — aromatic, effervescent and delicate." },
@@ -94,7 +96,7 @@ export const BAR_MENU: Menu = {
     {
       id: "classic-cocktails",
       title: "Zoi Classic Cocktails",
-      art: { src: "/assets/menu/bar-classic.jpg", width: 456, height: 708, alt: "" },
+      art: { src: "/assets/menu/bar-classic.png", width: 456, height: 708, alt: "" },
       groups: [
         {
           label: "Whiskey Based",
@@ -138,6 +140,7 @@ export const BAR_MENU: Menu = {
     {
       id: "shot-room",
       title: "The Shot Room",
+      art: { src: "/assets/menu/bar-shot-glasses.png", width: 512, height: 165, alt: "", wide: true },
       groups: [
         {
           items: [
@@ -155,7 +158,7 @@ export const BAR_MENU: Menu = {
     {
       id: "long-drinks",
       title: "Zoi Long Drinks",
-      art: { src: "/assets/menu/bar-shots.jpg", width: 456, height: 624, alt: "" },
+      art: { src: "/assets/menu/bar-long-drinks.png", width: 456, height: 624, alt: "" },
       groups: [
         {
           items: [
@@ -172,7 +175,7 @@ export const BAR_MENU: Menu = {
     {
       id: "spirits",
       title: "Spirits",
-      art: { src: "/assets/menu/bar-whiskey-bottle.jpg", width: 204, height: 462, alt: "" },
+      art: { src: "/assets/menu/bar-whiskey.png", width: 168, height: 422, alt: "" },
       groups: [
         {
           label: "Single Malt Scotch Whiskey",
@@ -262,7 +265,7 @@ export const BAR_MENU: Menu = {
     {
       id: "wines",
       title: "Wines",
-      art: { src: "/assets/menu/bar-wine.jpg", width: 640, height: 1168, alt: "" },
+      art: { src: "/assets/menu/bar-wine.png", width: 512, height: 930, alt: "" },
       groups: [
         { label: "Sparkling Wine", items: [{ name: "Sula Brut", price: 3999 }] },
         {
@@ -286,7 +289,7 @@ export const BAR_MENU: Menu = {
     {
       id: "beers",
       title: "Beers",
-      art: { src: "/assets/menu/bar-beer.jpg", width: 600, height: 1296, alt: "" },
+      art: { src: "/assets/menu/bar-beer.png", width: 512, height: 1088, alt: "" },
       groups: [
         {
           items: [
@@ -309,7 +312,6 @@ export const BAR_MENU: Menu = {
     {
       id: "alcopops",
       title: "Alcopops",
-      art: { src: "/assets/menu/bar-signature-spirits.jpg", width: 408, height: 600, alt: "" },
       groups: [
         {
           items: [
@@ -323,7 +325,7 @@ export const BAR_MENU: Menu = {
     {
       id: "mocktails",
       title: "House of Mocktails",
-      art: { src: "/assets/menu/bar-mocktail.jpg", width: 348, height: 942, alt: "" },
+      art: { src: "/assets/menu/bar-mocktail.png", width: 348, height: 942, alt: "" },
       groups: [
         {
           items: [
@@ -364,7 +366,7 @@ export const BAR_MENU: Menu = {
     {
       id: "milkshakes",
       title: "Milkshakes",
-      art: { src: "/assets/menu/bar-shake.jpg", width: 510, height: 906, alt: "" },
+      art: { src: "/assets/menu/bar-shake.png", width: 510, height: 906, alt: "" },
       groups: [
         {
           items: [
@@ -379,7 +381,7 @@ export const BAR_MENU: Menu = {
     {
       id: "boba-tea",
       title: "Boba Tea Over Ice",
-      art: { src: "/assets/menu/bar-iced-tea.jpg", width: 426, height: 912, alt: "" },
+      art: { src: "/assets/menu/bar-boba.png", width: 426, height: 912, alt: "" },
       groups: [
         {
           items: [
@@ -394,7 +396,6 @@ export const BAR_MENU: Menu = {
     {
       id: "cold-beverages",
       title: "Cold Beverages",
-      art: { src: "/assets/menu/bar-cold-coffee.jpg", width: 426, height: 414, alt: "" },
       groups: [
         {
           items: [
@@ -412,7 +413,7 @@ export const BAR_MENU: Menu = {
     {
       id: "coffee",
       title: "Coffee",
-      art: { src: "/assets/menu/bar-coffee.jpg", width: 640, height: 482, alt: "" },
+      art: { src: "/assets/menu/bar-coffee.png", width: 512, height: 385, alt: "" },
       groups: [
         {
           items: [
@@ -429,6 +430,7 @@ export const BAR_MENU: Menu = {
     {
       id: "tea",
       title: "Tea",
+      art: { src: "/assets/menu/bar-chai.png", width: 426, height: 392, alt: "" },
       groups: [
         {
           items: [
@@ -448,7 +450,7 @@ export const BAR_MENU: Menu = {
     {
       id: "juices",
       title: "Fresh Cold Pressed Juices",
-      art: { src: "/assets/menu/bar-juice.jpg", width: 420, height: 972, alt: "" },
+      art: { src: "/assets/menu/bar-juice.png", width: 420, height: 972, alt: "" },
       groups: [
         {
           items: [
@@ -462,7 +464,7 @@ export const BAR_MENU: Menu = {
     {
       id: "matcha",
       title: "Matcha",
-      art: { src: "/assets/menu/bar-matcha.jpg", width: 474, height: 720, alt: "" },
+      art: { src: "/assets/menu/bar-matcha.png", width: 474, height: 720, alt: "" },
       groups: [
         {
           items: [

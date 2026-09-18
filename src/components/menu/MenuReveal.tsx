@@ -1,84 +1,162 @@
 "use client";
 
 import { useEffect } from "react";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { DESKTOP_QUERY, gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useMenuShell } from "./MenuShell";
 
 /**
- * Brings each menu section in as it reaches the viewport.
+ * Brings a menu page in.
  *
- * Renders nothing — it exists to attach one ScrollTrigger.batch to every
- * `[data-reveal]` element below it. The elements start at their inline
- * `opacity: 0` so the server HTML never paints a flash of everything visible,
- * and each one is set back to fully visible if this never runs (no JS, or
- * reduced motion), which is the `gsap.set` in the early return.
+ * Renders nothing. It waits for the shell to say the loader has lifted, then
+ * plays the entrance — masthead (first view only), the rail's chips, and the
+ * sections as they reach the viewport — and sets up the one scroll-linked
+ * effect, a shallow parallax on the three photographs, desktop only.
  *
- * ── Why batch, and why only opacity + y ──────────────────────────────────────
+ * ── What moves, and why only that ────────────────────────────────────────────
  *
- * `batch` groups elements that enter in the same frame and plays them with one
- * stagger, so a fast scroll past six sections is one short cascade rather than
- * six overlapping tweens. And it creates ONE ScrollTrigger per element that
- * fires once — `once: true` — so after a section has appeared there is nothing
- * left listening to scroll for it.
+ * Every element starts from where it is and settles: a section lifts sixteen
+ * pixels and fades; its illustration scales from 0.94 and a few degrees off
+ * true — a drawing set down on the page, not one that pops; the items follow
+ * with a stagger capped at three-tenths of a second however long the list, so
+ * a thirty-line Spirits list never becomes a slow drip. Opacity and transform
+ * only, per CLAUDE.md. Each section fires once and then nothing is listening
+ * for it.
  *
- * Opacity and transform only, per CLAUDE.md. Sixteen pixels of lift, not
- * forty: this is a menu people are reading, and the motion's job is to make the
- * page feel settled as it arrives, not to perform.
+ * Reduced motion keeps the fades and drops every translate, scale and the
+ * parallax — the reader still sees the page settle, nothing moves.
  */
 export function MenuReveal() {
   const reducedMotion = useReducedMotion();
+  const { revealed, firstVisit } = useMenuShell();
 
   useEffect(() => {
-    const targets = gsap.utils.toArray<HTMLElement>("[data-reveal]");
-    if (targets.length === 0) return;
+    if (!revealed) return;
+
+    const sections = gsap.utils.toArray<HTMLElement>("[data-reveal]");
+    const rail = document.querySelector<HTMLElement>("[data-reveal-rail]");
+    const chips = rail ? gsap.utils.toArray<HTMLElement>("a", rail) : [];
+    const masthead = firstVisit ? gsap.utils.toArray<HTMLElement>("[data-masthead-item]") : [];
+    const photos = gsap.utils.toArray<HTMLElement>("[data-parallax]");
 
     if (reducedMotion) {
-      gsap.set(targets, { opacity: 1, y: 0 });
+      gsap.set([...sections, ...masthead, rail].filter(Boolean), { opacity: 1, clearProps: "transform" });
       return;
     }
 
+    let mm: gsap.MatchMedia | undefined;
     const ctx = gsap.context(() => {
-      gsap.set(targets, { opacity: 0, y: 16 });
-      ScrollTrigger.batch(targets, {
+      // ── Entrance ──────────────────────────────────────────────────────────
+      const entrance = gsap.timeline({ defaults: { ease: "power3.out" } });
+      if (masthead.length) {
+        entrance.fromTo(
+          masthead,
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, clearProps: "transform" }
+        );
+      }
+      if (rail) {
+        entrance.set(rail, { opacity: 1 }, masthead.length ? "-=0.35" : 0);
+        entrance.fromTo(
+          chips,
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: { amount: 0.3 }, clearProps: "transform" },
+          "<"
+        );
+      }
+
+      // ── Sections, as they arrive ──────────────────────────────────────────
+      // Whatever is on screen at the start waits its turn behind the rail, so
+      // the page arrives top-down; after that the lead is zero.
+      const startedAt = performance.now();
+      const entranceEnd = Math.max(0, entrance.duration() - 0.25);
+      const lead = () => Math.max(0, entranceEnd - (performance.now() - startedAt) / 1000);
+      gsap.set(sections, { opacity: 0, y: 16 });
+      const reveal = (section: Element, delay: number) => {
+        const art = gsap.utils.toArray<HTMLElement>("[data-art]", section);
+        const items = gsap.utils.toArray<HTMLElement>("li", section);
+        const tl = gsap.timeline({ delay, defaults: { ease: "power3.out" } });
+        tl.to(section, { opacity: 1, y: 0, duration: 0.5, clearProps: "transform" });
+        if (art.length) {
+          tl.fromTo(
+            art,
+            { opacity: 0, scale: 0.94, rotate: -3 },
+            { opacity: 1, scale: 1, rotate: 0, duration: 0.7, clearProps: "transform" },
+            0.05
+          );
+        }
+        if (items.length) {
+          tl.fromTo(
+            items,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.45, stagger: { amount: Math.min(0.3, items.length * 0.04) }, clearProps: "transform" },
+            0.1
+          );
+        }
+      };
+      ScrollTrigger.batch(sections, {
         start: "top 88%",
         once: true,
         /*
-          A jump — tapping a chip, or landing on #desserts — crosses a dozen
-          sections in one frame, and all of them arrive in a single batch.
-          Two things keep that from becoming a long slow fade:
-
-            1. Anything the jump has already scrolled PAST is set visible at
-               once. It is off-screen; animating it is invisible work that only
-               delays what is on screen.
-            2. What remains is capped at a few per batch, so the stagger never
-               accumulates past a fraction of a second.
+          A chip tap crosses a dozen sections in one frame. What the jump has
+          already scrolled PAST is set visible at once — animating it is
+          invisible work that delays what is on screen — and what remains is
+          capped per batch so the stagger never accumulates.
         */
         batchMax: 4,
         onEnter: (batch) => {
           const passed = batch.filter((el) => el.getBoundingClientRect().bottom < 0);
           const ahead = batch.filter((el) => !passed.includes(el));
           if (passed.length) gsap.set(passed, { opacity: 1, y: 0, clearProps: "transform" });
-          if (ahead.length)
-            gsap.to(ahead, {
-              opacity: 1,
-              y: 0,
-              duration: 0.55,
-              ease: "power2.out",
-              stagger: 0.06,
-              overwrite: true,
-              force3D: true,
-              clearProps: "transform",
-            });
+          const wait = lead();
+          ahead.forEach((section, i) => reveal(section, wait + i * 0.08));
         },
+      });
+
+      // ── Photographs: a shallow parallax, desktop only ─────────────────────
+      // Scrub-linked, so linear by nature. Scaled to keep the frame covered
+      // through the travel. The phone gets the still photograph — it is the
+      // one place a scroll-linked transform can be felt, and there is nothing
+      // to gain there.
+      mm = gsap.matchMedia();
+      mm.add(DESKTOP_QUERY, () => {
+        photos.forEach((figure) => {
+          const img = figure.querySelector("img");
+          if (!img) return;
+          gsap.fromTo(
+            img,
+            { yPercent: -6, scale: 1.12 },
+            {
+              yPercent: 6,
+              scale: 1.12,
+              ease: "none",
+              scrollTrigger: { trigger: figure, start: "top bottom", end: "bottom top", scrub: true },
+            }
+          );
+        });
       });
     });
 
-    // Fonts arrive after first paint and change every section's height.
-    const onFonts = () => ScrollTrigger.refresh();
-    document.fonts?.ready.then(onFonts);
+    /*
+      Measure once the page can actually scroll. The loader holds
+      `overflow: hidden` on <html> until a frame before this runs, and any
+      trigger built against an unscrollable document reads as already passed.
+      Fonts arrive after first paint and change every section's height, so
+      measure again then.
+    */
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
-    return () => ctx.revert();
-  }, [reducedMotion]);
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+      mm?.revert();
+      ctx.revert();
+    };
+  }, [revealed, firstVisit, reducedMotion]);
 
   return null;
 }

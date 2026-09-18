@@ -23,6 +23,19 @@ export const FOOD_MENU: Menu = {
   title: "Food",
   disclaimer:
     "All prices are in INR & subject to applicable government taxes. Please do let the server know should you be allergic to any kind of food. We levy 5% of Service Charge. Service charge is voluntary, please let us know if it should be removed.",
+  closing: {
+    title: "Host Your Next Celebration With Us.",
+    body: [
+      "Birthdays, anniversaries, corporate evenings, or just a reason to gather the people you love — Zoi is yours to celebrate in.",
+      "Whether you're looking for an intimate private setup in Privée, our exclusive lounge for up to 40 guests, or wish to take over the entire Zoi experience for a larger, grander gathering — we make it happen, exactly the way you envision it.",
+      "Custom décor & theming. Bespoke menus. Live kitchen & bar access. Live music, DJs & visual projections. Dedicated hospitality team. Every detail, handled.",
+    ],
+    art: { src: "/assets/menu/art-celebration.png", width: 512, height: 721, alt: "" },
+    // As printed on the menu's back page — an events line, distinct from the
+    // reservations number in CLAUDE.md. Client to confirm it is current.
+    phone: "+91 77799 49888",
+    email: "ops.ixr@zoiworld.com",
+  },
   sections: [
     {
       id: "soups",
@@ -33,7 +46,7 @@ export const FOOD_MENU: Menu = {
         height: 1173,
         alt: "Plates being shared across the table at Zoi — hands reaching for tikka, fries and dips",
       },
-      art: { src: "/assets/menu/art-soups.png", width: 564, height: 786, alt: "" },
+      art: { src: "/assets/menu/art-soups.png", width: 512, height: 723, alt: "" },
       groups: [
         {
           items: [
@@ -63,7 +76,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "small-plates",
       title: "Small Plates",
-      art: { src: "/assets/menu/art-small-plates.png", width: 618, height: 798, alt: "" },
+      art: { src: "/assets/menu/art-small-plates.png", width: 512, height: 646, alt: "" },
       groups: [
         {
           label: "Veg",
@@ -96,6 +109,7 @@ export const FOOD_MENU: Menu = {
         },
         {
           label: "Non-Veg",
+          art: { src: "/assets/menu/art-small-plates-nonveg.png", width: 512, height: 746, alt: "" },
           diet: "non-veg",
           items: [
             { name: "Kerala Style Lamb Pepper Treat", price: 525, description: "Boneless lamb tempered with garlic, onions, tomatoes & curry leaves." },
@@ -197,7 +211,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "pizza",
       title: "Pizza",
-      art: { src: "/assets/menu/art-pizza.png", width: 606, height: 306, alt: "" },
+      art: { src: "/assets/menu/art-pizza.png", width: 512, height: 259, alt: "" },
       groups: [
         {
           label: "Veg",
@@ -239,7 +253,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "pasta",
       title: "Zoi Hand Made Pasta",
-      art: { src: "/assets/menu/art-pasta.png", width: 546, height: 438, alt: "" },
+      art: { src: "/assets/menu/art-pasta.png", width: 512, height: 427, alt: "" },
       groups: [
         {
           items: [
@@ -274,7 +288,6 @@ export const FOOD_MENU: Menu = {
     {
       id: "oriental",
       title: "Oriental",
-      art: { src: "/assets/menu/art-oriental.png", width: 456, height: 582, alt: "" },
       groups: [
         {
           label: "Veg",
@@ -301,6 +314,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "rice-noodles",
       title: "Rice & Noodles",
+      art: { src: "/assets/menu/art-rice-noodles.png", width: 456, height: 582, alt: "" },
       groups: [
         {
           priceLabels: ["Veg", "Egg", "Chicken"],
@@ -319,7 +333,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "thai-curry",
       title: "Thai Curry",
-      art: { src: "/assets/menu/art-thai.png", width: 342, height: 522, alt: "" },
+      art: { src: "/assets/menu/art-thai.png", width: 333, height: 509, alt: "" },
       groups: [
         {
           priceLabels: ["Veg", "Chicken", "Seafood"],
@@ -346,7 +360,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "grills",
       title: "Grills",
-      art: { src: "/assets/menu/art-grills.png", width: 216, height: 600, alt: "" },
+      art: { src: "/assets/menu/art-grills.png", width: 205, height: 560, alt: "" },
       groups: [
         {
           label: "Veg",
@@ -369,7 +383,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "indian-mains",
       title: "Indian Mains",
-      art: { src: "/assets/menu/art-indian-veg.png", width: 540, height: 756, alt: "" },
+      art: { src: "/assets/menu/art-indian-veg.png", width: 512, height: 717, alt: "" },
       groups: [
         {
           label: "Veg",
@@ -391,6 +405,7 @@ export const FOOD_MENU: Menu = {
         },
         {
           label: "Non-Veg",
+          art: { src: "/assets/menu/art-indian-nonveg.png", width: 512, height: 702, alt: "" },
           diet: "non-veg",
           items: [
             { name: "Mutton Dak Bunglow", price: 545, description: "A fragrant goat meat curry dating back to colonial times cooked with special spices and potatoes." },
@@ -419,7 +434,7 @@ export const FOOD_MENU: Menu = {
         height: 1131,
         alt: "Dum biryani being served from a clay handi, saffron rice lifted on a spoon",
       },
-      art: { src: "/assets/menu/art-biryani.png", width: 576, height: 822, alt: "" },
+      art: { src: "/assets/menu/art-biryani.png", width: 512, height: 731, alt: "" },
       groups: [
         {
           items: [
@@ -450,7 +465,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "desserts",
       title: "Desserts",
-      art: { src: "/assets/menu/art-desserts.png", width: 414, height: 648, alt: "" },
+      art: { src: "/assets/menu/art-desserts.png", width: 474, height: 594, alt: "" },
       groups: [
         {
           items: [
@@ -471,7 +486,7 @@ export const FOOD_MENU: Menu = {
     {
       id: "healthy-plates",
       title: "Healthy Plates",
-      art: { src: "/assets/menu/art-healthy.png", width: 396, height: 450, alt: "" },
+      art: { src: "/assets/menu/art-healthy.png", width: 366, height: 429, alt: "" },
       groups: [
         {
           items: [

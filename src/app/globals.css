@@ -90,6 +90,17 @@ body {
   `inline` makes the utility write var(--font-fraunces) directly, which then
   resolves on the element inside the wrapper that carries it.
 */
+/*
+  Two strong curves for CSS transitions. Tailwind's built-in ease-out is too
+  weak to read as deliberate on a UI element; these are the ones the animation
+  guide prescribes — ease-out for anything entering or leaving, ease-in-out for
+  a thing that moves while it stays on screen.
+*/
+@theme {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
 @theme inline {
   --font-menu-display: var(--font-fraunces);
   --font-menu-script: var(--font-caveat);

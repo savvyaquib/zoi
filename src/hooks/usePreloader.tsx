@@ -78,7 +78,7 @@ function awaitLoadEvent(el: HTMLImageElement): Promise<void> {
  * rejection falls back to the load event and one retry. A permanently broken image
  * still counts toward progress rather than hanging the gate.
  */
-async function awaitImageDecoded(el: HTMLImageElement): Promise<void> {
+export async function awaitImageDecoded(el: HTMLImageElement): Promise<void> {
   try {
     await el.decode();
     return;
