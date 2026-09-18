@@ -57,16 +57,17 @@ smoothness, choose smoothness.
 - **next/image** for images
 - Deploy target: **Vercel** (site already lives there)
 
-## Color palette — ONLY these 4. No other colors anywhere.
+## Color palette — ONLY these 3. No other colors anywhere.
 Define as CSS variables / Tailwind theme tokens and reference by name only.
 ```
 --color-orange:  #FF6542;  /* accent, CTAs, highlights */
 --color-navy:    #0B0F1A;  /* Zoi brand dark — dark bg, "black" text */
 --color-white:   #F5F3EE;  /* warm off-white — light bg, light text */
---color-blue:    #4169E1;  /* secondary accent — script labels, links */
 ```
-Never introduce greys, other blues, drop-shadowed colors, etc. Tint with
-opacity of these four if you need lighter/darker steps.
+Never introduce greys, blues, drop-shadowed colors, etc. Tint with opacity of
+these three if you need lighter/darker steps. (Blue was in the original palette
+and was retired on 18 Sep 2026; small labels and links use orange now. The menu
+pages keep their own scoped cream/red exception.)
 
 ## Typography
 - One expressive display face for the huge scroll words (about section, hero).

@@ -30,11 +30,11 @@ export default function MenuLayout({ children }: LayoutProps<"/menu">) {
       One wrapper carrying the font variables and the menu's own colour tokens.
 
       ── A deliberate, scoped exception to the four-colour palette ──────────
-      CLAUDE.md fixes the site to orange / navy / white / blue. The client asked
+      CLAUDE.md fixes the site to orange / navy / white. The client asked
       for the menu to look exactly like the printed one, which is cream paper
       with deep-red headings — so these two tokens exist, and they exist ONLY
       inside this wrapper. Nothing outside /menu can reach them, and nothing in
-      here reaches for the site's orange or blue.
+      here reaches for the site's orange.
 
       ── What the layout owns, and why ──────────────────────────────────────
       Everything the two cards share is rendered HERE, once: the paper, the

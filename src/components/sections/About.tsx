@@ -8,21 +8,19 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 /**
  * Four beats, each with its own colour combination.
  *
- * Only the four palette colours, as required — orange, blue, navy ("black") and
- * the warm off-white. The sequence is chosen to read as a journey rather than a
- * set of unrelated screens:
+ * Only the palette colours, as required — orange, navy ("black") and the warm
+ * off-white; blue was retired from the palette. The grounds simply alternate:
  *
- *   white -> navy -> blue -> white
+ *   white -> navy -> white -> navy
  *
- * Light, then dark, then a cooler dark, then back to light. It opens and closes
- * on the same ground, so the deck reads as a single arc that returns home rather
- * than ending somewhere new — and the two darks in the middle mean the eye is
- * never thrown straight from white to a saturated accent. The accent carries
- * through from the word to the tagline on each slide, so the colour rotates
- * independently of the ground.
+ * Light, dark, light, dark. Each slide is the opposite of the one before, so
+ * every transition is a full change of ground, and the deck closes on navy —
+ * the ground Ambience opens on, so the hand-off out of the section is seamless.
+ * The accent follows the ground — navy on white, orange on navy — and carries
+ * through from the word to the tagline on each slide.
  *
  * Every pairing clears WCAG AA for body text at these sizes (the display word is
- * far past it): navy-on-white ~17:1, orange-on-navy ~6.5:1, white-on-blue ~5.4:1.
+ * far past it): navy-on-white ~17:1, orange-on-navy ~6.5:1.
  * The body tints are held above 4.5:1 on their ground.
  *
  * Copy is the client's own, verbatim — see the brand notes. Each beat is one
@@ -52,18 +50,18 @@ const SLIDES = [
     tagline: "Every visit can become a story.",
     body:
       "Some evenings call for a great meal. Some call for music, celebration and a little more energy. From curated events and live entertainment to intimate celebrations and nights that turn into something unexpected, Zoi creates experiences designed to be felt — not simply attended. Because what stays with you is rarely just what you ate or where you went, but how you felt while you were there.",
-    bg: "bg-blue",
-    accent: "text-white",
-    body_: "text-white/85",
+    bg: "bg-white",
+    accent: "text-navy",
+    body_: "text-navy/70",
   },
   {
     word: "Community",
     tagline: "Come as you are. Stay for the feeling.",
     body:
       "Zoi is a space for everyone — and every version of you. A quiet dinner with your family. Your first coffee date. Drinks with friends. A meeting between two busy days. A moment alone. A celebration that brings everyone together. We believe the places we love are shaped by the people who fill them, and Zoi is built to make every person feel welcomed, acknowledged and part of something.",
-    bg: "bg-white",
-    accent: "text-navy",
-    body_: "text-navy/70",
+    bg: "bg-navy",
+    accent: "text-orange",
+    body_: "text-white/75",
   },
 ] as const;
 
