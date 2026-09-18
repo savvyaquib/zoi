@@ -1,50 +1,27 @@
-import { Caveat, Fraunces, Montserrat } from "next/font/google";
+import { Caveat } from "next/font/google";
 import { SurfaceFlag } from "@/components/SurfaceFlag";
 import { MenuMasthead } from "@/components/menu/MenuMasthead";
 import { MenuShell } from "@/components/menu/MenuShell";
 import { MenuSwitch } from "@/components/menu/MenuSwitch";
 
 /**
- * The menu's own type, loaded here so the home page never pays for it.
+ * The menu's one face of its own.
  *
- * ── Why these three ────────────────────────────────────────────────────────
+ * The printed bar menu sets its headings in SelfWritten, a commercial marker
+ * hand with no web licence in hand; Caveat is the closest open face — the
+ * same upright bounce at 500–600 — and the client chose it for the food
+ * headings too. Everything else on the card now speaks in the site's own
+ * voice: Glorify for "Menu", Maven Pro for names, prices and labels. The
+ * Fraunces and Montserrat loads that stood in for the print's Astrid and
+ * Montserrat are gone with that decision — two fewer files on the route.
  *
- * The printed menu is set in Astrid (food headings), SelfWritten (bar
- * headings) and Montserrat (everything else). The first two are commercial
- * faces with no web licence in hand, so the site uses the closest open faces
- * rather than embedding fonts it has no right to:
- *
- *   Astrid       → Fraunces, with its SOFT axis up. Astrid's whole character
- *                  is a rounded, slightly chunky display serif; Fraunces at
- *                  SOFT 100 is the nearest thing on Google Fonts, and it has
- *                  the italic and the weights the print menu leans on.
- *   SelfWritten  → Caveat. A marker-pen hand at 500–600 weight, upright and
- *                  bouncy in the same way, without tipping into "party
- *                  invitation" the way rounder scripts do.
- *   Montserrat   → Montserrat. The one that IS on Google Fonts.
- *
- * All self-hosted by next/font — no third-party request, no layout shift.
+ * Self-hosted by next/font — no third-party request, no layout shift.
  */
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  display: "swap",
-  weight: "variable",
-  axes: ["SOFT", "opsz"],
-});
-
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
   display: "swap",
   weight: "variable",
-});
-
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "600", "700"],
 });
 
 export default function MenuLayout({ children }: LayoutProps<"/menu">) {
@@ -68,7 +45,7 @@ export default function MenuLayout({ children }: LayoutProps<"/menu">) {
       blinks. A page component could not do that; it is unmounted with its route.
     */
     <div
-      className={`${fraunces.variable} ${caveat.variable} ${montserrat.variable} menu-scope`}
+      className={`${caveat.variable} menu-scope`}
       style={
         {
           "--menu-paper": "#f1ead8",

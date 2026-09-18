@@ -88,7 +88,7 @@ function Item({ item, priceLabels }: { item: MenuItem; priceLabels?: string[] })
   return (
     <li className="break-inside-avoid pb-5 md:pb-6">
       <div className="flex items-baseline justify-between gap-4">
-        <h4 className="font-menu-sans text-[13.5px] leading-snug font-bold tracking-[0.02em] text-menu-ink uppercase md:text-sm">
+        <h4 className="font-sans text-[13.5px] leading-snug font-bold tracking-[0.02em] text-menu-ink uppercase md:text-sm">
           {item.diet && <DietMark diet={item.diet} className="mr-1.5" />}
           {item.name}
           {item.variants && (
@@ -99,7 +99,7 @@ function Item({ item, priceLabels }: { item: MenuItem; priceLabels?: string[] })
         </h4>
         {item.prices ? (
           <span
-            className="flex shrink-0 gap-2.5 font-menu-sans text-sm font-bold text-menu-ink"
+            className="flex shrink-0 gap-2.5 font-sans text-sm font-bold text-menu-ink"
             aria-label={
               priceLabels
                 ? item.prices.map((p, i) => `${priceLabels[i] ?? ""} ${p}`).join(", ")
@@ -113,18 +113,18 @@ function Item({ item, priceLabels }: { item: MenuItem; priceLabels?: string[] })
             ))}
           </span>
         ) : item.price !== undefined ? (
-          <span className="shrink-0 font-menu-sans text-sm font-bold text-menu-ink">
+          <span className="shrink-0 font-sans text-sm font-bold text-menu-ink">
             <Price value={item.price} />
           </span>
         ) : null}
       </div>
       {item.description && (
-        <p className="mt-1 max-w-[46ch] font-menu-sans text-[12.5px] leading-[1.45] text-menu-ink/75 md:text-[13px]">
+        <p className="mt-1 max-w-[46ch] font-sans text-[12.5px] leading-[1.45] text-menu-ink/75 md:text-[13px]">
           {item.description}
         </p>
       )}
       {item.note && (
-        <p className="mt-1 font-menu-sans text-[11px] font-semibold tracking-[0.06em] text-menu-ink/60 uppercase">
+        <p className="mt-1 font-sans text-[11px] font-semibold tracking-[0.06em] text-menu-ink/60 uppercase">
           {item.note}
         </p>
       )}
@@ -139,7 +139,7 @@ function Group({ group, script }: { group: MenuGroup; script: boolean }) {
     <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
       {hasLabel && (
         <h3
-          className={`font-menu-sans font-bold text-menu-red uppercase ${
+          className={`font-sans font-bold text-menu-red uppercase ${
             script ? "text-[13px] tracking-[0.1em]" : "text-sm tracking-[0.14em]"
           }`}
         >
@@ -148,7 +148,7 @@ function Group({ group, script }: { group: MenuGroup; script: boolean }) {
         </h3>
       )}
       {hasPriceLabels && (
-        <span className="font-menu-sans text-[11px] font-semibold tracking-[0.1em] text-menu-ink/60 uppercase">
+        <span className="font-sans text-[11px] font-semibold tracking-[0.1em] text-menu-ink/60 uppercase">
           {group.priceLabels!.join(" / ")}
         </span>
       )}
@@ -301,7 +301,7 @@ function Closing({ closing }: { closing: NonNullable<Menu["closing"]> }) {
           {closing.body.map((paragraph) => (
             <p
               key={paragraph}
-              className="mt-4 max-w-[58ch] font-menu-sans text-[13px] leading-[1.6] text-menu-ink/80 md:text-sm"
+              className="mt-4 max-w-[58ch] font-sans text-[13px] leading-[1.6] text-menu-ink/80 md:text-sm"
             >
               {paragraph}
             </p>
@@ -309,17 +309,17 @@ function Closing({ closing }: { closing: NonNullable<Menu["closing"]> }) {
           <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
             <Link
               href="/#reserve"
-              className="rounded-full bg-menu-red px-6 py-3 font-menu-sans text-[11px] font-bold tracking-[0.18em] text-menu-paper uppercase transition-transform duration-100 ease-out-strong active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:ring-offset-2 focus-visible:ring-offset-menu-paper focus-visible:outline-none"
+              className="rounded-full bg-menu-red px-6 py-3 font-sans text-[11px] font-bold tracking-[0.18em] text-menu-paper uppercase transition-transform duration-100 ease-out-strong active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:ring-offset-2 focus-visible:ring-offset-menu-paper focus-visible:outline-none"
             >
               Plan a celebration
             </Link>
             {closing.phone && (
-              <a href={`tel:${tel}`} className="font-menu-sans text-[13px] font-semibold text-menu-red">
+              <a href={`tel:${tel}`} className="font-sans text-[13px] font-semibold text-menu-red">
                 {closing.phone}
               </a>
             )}
             {closing.email && (
-              <a href={`mailto:${closing.email}`} className="font-menu-sans text-[13px] font-semibold text-menu-red">
+              <a href={`mailto:${closing.email}`} className="font-sans text-[13px] font-semibold text-menu-red">
                 {closing.email}
               </a>
             )}
@@ -362,7 +362,7 @@ export function MenuPage({ menu }: { menu: Menu }) {
         {menu.closing && <Closing closing={menu.closing} />}
 
         <footer className="border-t border-menu-red/15 py-10 md:py-14">
-          <p className="max-w-3xl font-menu-sans text-[13px] leading-relaxed text-menu-ink/80 md:text-sm">
+          <p className="max-w-3xl font-sans text-[13px] leading-relaxed text-menu-ink/80 md:text-sm">
             {menu.disclaimer}
           </p>
         </footer>

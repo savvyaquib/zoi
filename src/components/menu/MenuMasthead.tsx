@@ -21,7 +21,7 @@ export function MenuMasthead() {
         <div>
           <h1
             data-masthead-item
-            className="font-menu-display text-[4rem] leading-none font-medium text-menu-red md:text-[6rem]"
+            className="font-display text-[4rem] leading-none font-medium text-menu-red md:text-[6rem]"
           >
             Menu
           </h1>

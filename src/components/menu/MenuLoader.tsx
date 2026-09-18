@@ -233,7 +233,7 @@ export function MenuLoader({
                   phraseRefs.current[i] = el;
                 }}
                 aria-hidden="true"
-                className="absolute inset-x-0 top-0 flex items-center justify-center font-menu-sans text-[10px] tracking-[0.3em] whitespace-nowrap text-menu-ink/60 uppercase md:text-[11px]"
+                className="absolute inset-x-0 top-0 flex items-center justify-center font-sans text-[10px] tracking-[0.3em] whitespace-nowrap text-menu-ink/60 uppercase md:text-[11px]"
                 style={{ opacity: i === 0 ? 1 : 0 }}
               >
                 {phrase.text}

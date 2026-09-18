@@ -130,7 +130,7 @@ export function CategoryRail({ entries }: { entries: Entry[] }) {
             href={`#${e.id}`}
             onClick={(ev) => go(ev, e.id)}
             aria-current={isActive ? "true" : undefined}
-            className={`shrink-0 rounded-full border px-3.5 py-2 font-menu-sans text-[11px] font-semibold tracking-[0.12em] whitespace-nowrap uppercase transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:ring-offset-2 focus-visible:ring-offset-menu-paper focus-visible:outline-none ${
+            className={`shrink-0 rounded-full border px-3.5 py-2 font-sans text-[11px] font-semibold tracking-[0.12em] whitespace-nowrap uppercase transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:ring-offset-2 focus-visible:ring-offset-menu-paper focus-visible:outline-none ${
               isActive
                 ? "border-menu-red bg-menu-red text-menu-paper"
                 : "border-menu-red/30 text-menu-red hover:border-menu-red"

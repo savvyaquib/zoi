@@ -138,7 +138,7 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
             href={t.href}
             aria-current={t.id === active ? "page" : undefined}
             onClick={(e) => go(e, t.id, t.href)}
-            className={`pb-3 text-center font-menu-sans text-xs font-bold tracking-[0.18em] uppercase transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:outline-none ${
+            className={`pb-3 text-center font-sans text-xs font-bold tracking-[0.18em] uppercase transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:outline-none ${
               t.id === active ? "text-menu-red" : "text-menu-ink/50 hover:text-menu-red"
             }`}
           >
@@ -183,7 +183,7 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
               href={t.href}
               aria-current={t.id === active ? "page" : undefined}
               onClick={(e) => go(e, t.id, t.href)}
-              className={`relative z-10 flex items-center justify-center rounded-full font-menu-sans font-bold text-menu-red uppercase transition-transform duration-100 ease-out-strong active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:ring-offset-2 focus-visible:ring-offset-menu-paper focus-visible:outline-none ${type}`}
+              className={`relative z-10 flex items-center justify-center rounded-full font-sans font-bold text-menu-red uppercase transition-transform duration-100 ease-out-strong active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-menu-red focus-visible:ring-offset-2 focus-visible:ring-offset-menu-paper focus-visible:outline-none ${type}`}
             >
               {t.label}
             </Link>
@@ -194,7 +194,7 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
             style={{ clipPath: active === "food" ? "inset(0 50% 0 0 round 9999px)" : "inset(0 0 0 50% round 9999px)" }}
           >
             {TABS.map((t) => (
-              <span key={t.id} className={`flex items-center justify-center font-menu-sans font-bold uppercase ${type}`}>
+              <span key={t.id} className={`flex items-center justify-center font-sans font-bold uppercase ${type}`}>
                 {t.label}
               </span>
             ))}

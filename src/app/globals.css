@@ -78,16 +78,16 @@ body {
 /*
   ── The menu's type and colour, as Tailwind utilities ──────────────────────
 
-  Registered in @theme so `font-menu-display`, `text-menu-red`, `bg-menu-paper`
+  Registered in @theme so `font-menu-script`, `text-menu-red`, `bg-menu-paper`
   and the rest exist as ordinary utilities. The underlying variables are only
   ever SET on the /menu layout's wrapper (app/menu/layout.tsx), so outside that
   route these utilities resolve to nothing — the palette exception stays scoped
   to the one place it was asked for.
 
-  `inline` is load-bearing. A plain @theme would define --font-menu-display on
-  :root as var(--font-fraunces) — and resolve it THERE, where next/font has not
-  set --font-fraunces, so the value is invalid before any element ever uses it.
-  `inline` makes the utility write var(--font-fraunces) directly, which then
+  `inline` is load-bearing. A plain @theme would define --font-menu-script on
+  :root as var(--font-caveat) — and resolve it THERE, where next/font has not
+  set --font-caveat, so the value is invalid before any element ever uses it.
+  `inline` makes the utility write var(--font-caveat) directly, which then
   resolves on the element inside the wrapper that carries it.
 */
 /*
@@ -102,22 +102,11 @@ body {
 }
 
 @theme inline {
-  --font-menu-display: var(--font-fraunces);
   --font-menu-script: var(--font-caveat);
-  --font-menu-sans: var(--font-montserrat);
 
   --color-menu-paper: var(--menu-paper);
   --color-menu-red: var(--menu-red);
   --color-menu-ink: var(--menu-ink);
-}
-
-/*
-  Fraunces' soft axis. Tailwind has no utility for font-variation-settings, and
-  this is the single setting that makes it read as the printed menu's face
-  rather than a generic serif — so it is applied once, to the display class.
-*/
-.menu-scope .font-menu-display {
-  font-variation-settings: "SOFT" 100, "opsz" 96;
 }
 
 /*
