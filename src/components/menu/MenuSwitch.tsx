@@ -68,8 +68,9 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
     router.push(href);
   };
 
-  // ── The dock's two conditions: past the masthead, and moving ──────────────
+  // ── The dock's conditions: past the masthead, moving, not over the footer ──
   const [pastMasthead, setPastMasthead] = useState(false);
+  const [atFooter, setAtFooter] = useState(false);
   const [moving, setMoving] = useState(false);
   const movingRef = useRef(false);
 
@@ -83,6 +84,16 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
           start: () => `bottom ${band?.offsetHeight ?? 0}px`,
           onEnter: () => setPastMasthead(true),
           onLeaveBack: () => setPastMasthead(false),
+        })
+      : null;
+    // And never over the site footer — the menu's own ground ends there.
+    const footer = document.querySelector<HTMLElement>("body > footer");
+    const footerTrigger = footer
+      ? ScrollTrigger.create({
+          trigger: footer,
+          start: "top bottom",
+          onEnter: () => setAtFooter(true),
+          onLeaveBack: () => setAtFooter(false),
         })
       : null;
 
@@ -107,6 +118,7 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       trigger?.kill();
+      footerTrigger?.kill();
       window.removeEventListener("scroll", onScroll);
       window.clearTimeout(timer);
     };
@@ -143,7 +155,7 @@ export function MenuSwitch({ variant }: { variant: "masthead" | "dock" }) {
     );
   }
 
-  const shown = pastMasthead && moving;
+  const shown = pastMasthead && moving && !atFooter;
   const type = "text-[11px] tracking-[0.16em]";
 
   return (

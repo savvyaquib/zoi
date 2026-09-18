@@ -362,16 +362,7 @@ export function MenuPage({ menu }: { menu: Menu }) {
         {menu.closing && <Closing closing={menu.closing} />}
 
         <footer className="border-t border-menu-red/15 py-10 md:py-14">
-          <Image
-            src={script ? "/assets/menu/swash-brown.png" : "/assets/menu/swash-red.png"}
-            alt=""
-            width={script ? 478 : 454}
-            height={script ? 253 : 215}
-            aria-hidden="true"
-            className="mb-8 ml-auto h-auto w-28 md:w-36"
-            loading="lazy"
-          />
-          <p className="max-w-3xl font-menu-sans text-[11px] leading-relaxed text-menu-ink/60">
+          <p className="max-w-3xl font-menu-sans text-[13px] leading-relaxed text-menu-ink/80 md:text-sm">
             {menu.disclaimer}
           </p>
         </footer>
