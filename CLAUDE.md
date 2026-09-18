@@ -69,6 +69,12 @@ these three if you need lighter/darker steps. (Blue was in the original palette
 and was retired on 18 Sep 2026; small labels and links use orange now. The menu
 pages keep their own scoped cream/red exception.)
 
+Two sanctioned exceptions, and only these:
+- The menu pages' cream paper and red headings (scoped to the /menu layout).
+- Third-party brand marks keep their own colours — today that is the Instagram
+  gradient in `components/InstagramIcon.tsx`. A mark that sits on a filled
+  button (WhatsApp on the orange button) uses `currentColor` instead.
+
 ## Typography
 - One expressive display face for the huge scroll words (about section, hero).
 - One clean sans for body/labels.
