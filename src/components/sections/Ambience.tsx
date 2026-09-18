@@ -185,7 +185,13 @@ export function Ambience() {
   if (!isDesktop || reducedMotion) {
     return (
       <section ref={sectionRef} id="ambience" className="bg-navy">
-        <div className="relative h-[38svh] w-full">
+        {/*
+          The photograph's top corners are rounded on the navy it sits on, at
+          the same 1.75rem the Reservation card uses further down — the two
+          then read as the same kind of object, a card laid on the page. The
+          About deck closes on navy, so the curve has navy to show through.
+        */}
+        <div className="relative h-[38svh] w-full overflow-hidden rounded-t-[1.75rem]">
           <Image
             src={AMBIENCE_BANNER.src}
             alt={AMBIENCE_BANNER.alt}
@@ -303,15 +309,18 @@ export function Ambience() {
   return (
     <section ref={sectionRef} id="ambience" className="relative h-[420vh] bg-navy">
       <div ref={stageRef} className="sticky top-0 h-dvh w-full overflow-hidden bg-navy">
-        {/* Beat 1 — the reception, full-bleed. */}
-        <Image
-          src={AMBIENCE_BANNER.src}
-          alt={AMBIENCE_BANNER.alt}
-          fill
-          sizes="100vw"
-          loading="lazy"
-          className="object-cover"
-        />
+        {/* Beat 1 — the reception, full-bleed. Its own positioned box: a
+            `fill` image wants an absolute/relative parent, not the sticky stage. */}
+        <div className="absolute inset-0">
+          <Image
+            src={AMBIENCE_BANNER.src}
+            alt={AMBIENCE_BANNER.alt}
+            fill
+            sizes="100vw"
+            loading="lazy"
+            className="object-cover"
+          />
+        </div>
 
         {/*
           Beats 2 + 3 — the panel wipes in from the right, carrying everything.
