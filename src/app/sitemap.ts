@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/assets";
  * always says "just now", and the signal stops being worth anything. Bump this by
  * hand when the copy, the menu or the venue details actually change.
  */
-const LAST_CONTENT_CHANGE = new Date("2026-09-01");
+const LAST_CONTENT_CHANGE = new Date("2026-09-19");
 
 /**
  * Served at /sitemap.xml, generated at build time.

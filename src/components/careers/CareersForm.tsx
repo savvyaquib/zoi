@@ -384,7 +384,7 @@ function ApplicationForm() {
 
       <div>
         <label htmlFor={id("message")} className={LABEL}>
-          Anything else <span className="normal-case tracking-normal text-white/35">(optional)</span>
+          Anything else <span className="normal-case tracking-normal text-white/60">(optional)</span>
         </label>
         <textarea
           id={id("message")}

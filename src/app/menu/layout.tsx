@@ -21,7 +21,9 @@ const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
   display: "swap",
-  weight: "variable",
+  // The one weight the headings set. The variable file carried 400–700 at
+  // 72 KB, preloaded at high priority on both cards; the static 600 is half.
+  weight: "600",
 });
 
 export default function MenuLayout({ children }: LayoutProps<"/menu">) {

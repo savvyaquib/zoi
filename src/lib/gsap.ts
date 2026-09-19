@@ -18,5 +18,3 @@ export { gsap, ScrollTrigger };
 
 /** Matches the `md:` Tailwind breakpoint. Desktop gets the heavier motion set. */
 export const DESKTOP_QUERY = "(min-width: 768px)";
-export const MOBILE_QUERY = "(max-width: 767px)";
-export const NO_MOTION_QUERY = "(prefers-reduced-motion: reduce)";

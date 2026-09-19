@@ -1,11 +1,13 @@
 "use client";
 
+import { preload } from "react-dom";
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
 import { HERO_STILLS, HERO_VIDEO } from "@/lib/assets";
 import { usePreload } from "@/hooks/usePreloader";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useWindowLoaded } from "@/hooks/useWindowLoaded";
 
 /**
  * The opening. The first still arrives as a small rectangle and grows to fill the
@@ -157,6 +159,16 @@ type Slots = {
  * Only transform and opacity are ever animated.
  */
 export function Hero() {
+  /*
+    The poster is the page's Largest Contentful Paint: the <video> is the
+    largest element in the first viewport, and what it paints first is its
+    poster. Nothing else tells the browser to fetch it early — a poster is not
+    a preloadable next/image — so it is declared here, hoisted into <head> on
+    the server render, at high priority. Measured: LCP 3.5s → the poster's
+    own arrival.
+  */
+  preload(HERO_VIDEO.poster, { as: "image", fetchPriority: "high" });
+
   const { registerStill, registerVideo, revealed } = usePreload();
   const reducedMotion = useReducedMotion();
 
@@ -168,11 +180,29 @@ export function Hero() {
   const hasRun = useRef(false);
   const videoStarted = useRef(false);
 
+  /*
+    Stills two to nine mount only once the window has loaded. They sit in the
+    viewport (stacked under the first), so the browser fetched all of them in
+    the first hundred milliseconds — 300 KB the lab model charges to LCP, for
+    frames nothing shows until the intro plays a second later. The first still
+    is the one on screen and stays in the server render; the rest arrive right
+    after load, and the preloader's gate waits for them as before.
+  */
+  const laterStills = useWindowLoaded();
+
   /**
    * Pick the encode in JS and assign it directly, so exactly ONE file is fetched.
    * The server renders no `src` at all — shipping two <source> tags would let the
    * browser choose on MIME type rather than breakpoint, and rendering the mobile
    * src during hydration would make desktop start the wrong download.
+   *
+   * And not before the window has loaded. The poster is the page's Largest
+   * Contentful Paint; a 2.5 MB request that begins during hydration, before
+   * the poster has painted, is charged to LCP by the lab model (PageSpeed,
+   * Lighthouse) — 3.5s where the poster itself lands in well under one. After
+   * `load` the poster is on screen and the first frames arrive a few hundred
+   * milliseconds later than they did, under the loader, where nobody sees the
+   * difference.
    */
   useEffect(() => {
     const video = videoRef.current;
@@ -180,13 +210,16 @@ export function Hero() {
 
     const desktop = window.matchMedia(`(min-width: ${HERO_VIDEO.breakpoint}px)`).matches;
     const chosen = desktop ? HERO_VIDEO.desktop : HERO_VIDEO.mobile;
-    if (video.getAttribute("src") !== chosen) {
-      video.setAttribute("src", chosen);
-      video.load();
-    }
-
-    // Registered only AFTER src is set — the preloader calls load() on it.
-    registerVideo(video);
+    const start = () => {
+      if (video.getAttribute("src") !== chosen) {
+        video.setAttribute("src", chosen);
+        video.load();
+      }
+      // Registered only AFTER src is set — the preloader calls load() on it.
+      registerVideo(video);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
 
     /*
       Pause the loop once the hero scrolls away.
@@ -211,6 +244,7 @@ export function Hero() {
     io.observe(video);
 
     return () => {
+      window.removeEventListener("load", start);
       io.disconnect();
       registerVideo(null);
     };
@@ -558,7 +592,7 @@ export function Hero() {
         block comment above.
       */}
       <div className="absolute inset-0 grid grid-cols-1 grid-rows-1 place-items-center">
-        {HERO_STILLS.map((still, i) => (
+        {HERO_STILLS.map((still, i) => i > 0 && !laterStills ? null : (
           <div
             key={still.src}
             ref={(el) => {

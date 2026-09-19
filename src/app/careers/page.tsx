@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CareersForm } from "@/components/careers/CareersForm";
-import { VENUE } from "@/lib/assets";
+import { OG_IMAGE, VENUE } from "@/lib/assets";
+import { breadcrumbSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Careers at Zoi — Modern Dining in Hindpiri, Ranchi",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
     description:
       "Kitchen, service, bar and management roles at Zoi, Ranchi. Send us your resume.",
     url: "/careers",
+    images: [{ url: OG_IMAGE.src, width: OG_IMAGE.width, height: OG_IMAGE.height, alt: OG_IMAGE.alt }],
   },
 };
 
@@ -28,6 +30,11 @@ export const metadata: Metadata = {
  */
 export default function CareersPage() {
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema([{ name: "Careers", path: "/careers" }])) }}
+      />
     <main className="bg-navy text-white">
       <div className="mx-auto max-w-2xl px-5 pt-28 pb-24 md:px-8 md:pt-40 md:pb-32">
         <p className="font-display text-2xl text-orange italic md:text-3xl">Careers</p>
@@ -53,5 +60,6 @@ export default function CareersPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

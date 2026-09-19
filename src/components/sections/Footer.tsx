@@ -43,6 +43,7 @@ export function Footer() {
           <div className="md:col-span-1">
             <Image
               src={BRAND.logo.src}
+            unoptimized
               alt="Zoi restaurant Ranchi"
               width={BRAND.logo.width}
               height={BRAND.logo.height}
@@ -140,7 +141,7 @@ export function Footer() {
               href="https://onyxsavvy.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 underline-offset-4 transition-colors duration-150 ease-out hover:text-orange hover:underline focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none"
+              className="text-white/80 underline decoration-white/40 underline-offset-4 transition-colors duration-150 ease-out hover:text-orange hover:decoration-orange focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none"
             >
               OnyxSavvy
             </a>

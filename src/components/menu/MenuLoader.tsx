@@ -216,6 +216,7 @@ export function MenuLoader({
         <div ref={logoRef} className="w-[130px] md:w-[180px]">
           <Image
             src={BRAND.logo.src}
+            unoptimized
             alt="Zoi"
             width={BRAND.logo.width}
             height={BRAND.logo.height}

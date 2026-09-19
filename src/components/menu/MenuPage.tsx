@@ -78,6 +78,7 @@ function Drawing({
         sizes={sizes}
         className="h-auto w-full"
         priority={critical}
+        fetchPriority={critical ? "high" : undefined}
         loading={critical ? undefined : "lazy"}
       />
     </figure>
@@ -88,7 +89,7 @@ function Item({ item, priceLabels }: { item: MenuItem; priceLabels?: string[] })
   return (
     <li className="break-inside-avoid pb-5 md:pb-6">
       <div className="flex items-baseline justify-between gap-4">
-        <h4 className="font-sans text-[13.5px] leading-snug font-bold tracking-[0.02em] text-menu-ink uppercase md:text-sm">
+        <h3 className="font-sans text-[13.5px] leading-snug font-bold tracking-[0.02em] text-menu-ink uppercase md:text-sm">
           {item.diet && <DietMark diet={item.diet} className="mr-1.5" />}
           {item.name}
           {item.variants && (
@@ -96,7 +97,7 @@ function Item({ item, priceLabels }: { item: MenuItem; priceLabels?: string[] })
               ({item.variants})
             </span>
           )}
-        </h4>
+        </h3>
         {item.prices ? (
           <span
             className="flex shrink-0 gap-2.5 font-sans text-sm font-bold text-menu-ink"
@@ -137,15 +138,20 @@ function Group({ group, script }: { group: MenuGroup; script: boolean }) {
   const hasPriceLabels = Boolean(group.priceLabels);
   const header = (hasLabel || hasPriceLabels) && (
     <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      {/*
+        A label, not a heading: the dishes beneath are the section's real
+        subheadings (h3 under the h2), and a section with no label — most of
+        them — would otherwise jump from h2 to h4.
+      */}
       {hasLabel && (
-        <h3
+        <p
           className={`font-sans font-bold text-menu-red uppercase ${
             script ? "text-[13px] tracking-[0.1em]" : "text-sm tracking-[0.14em]"
           }`}
         >
           {group.label}
           {group.diet && <DietMark diet={group.diet} className="ml-2" />}
-        </h3>
+        </p>
       )}
       {hasPriceLabels && (
         <span className="font-sans text-[11px] font-semibold tracking-[0.1em] text-menu-ink/60 uppercase">
@@ -198,8 +204,16 @@ function Section({
     <section
       id={section.id}
       aria-labelledby={`${section.id}-title`}
-      data-reveal
-      style={{ opacity: 0 }}
+      /*
+        Every section but the first starts hidden and is revealed as it
+        arrives. The first is visible from the server render: its photograph
+        is the page's Largest Contentful Paint, and an element at opacity 0
+        cannot be painted, so hiding it pushed LCP out to wherever the loader
+        and the entrance choreography finished — measured at 5.0s. Under the
+        loader nobody sees it arrive either way.
+      */
+      data-reveal={first ? undefined : ""}
+      style={first ? undefined : { opacity: 0 }}
       /* scroll-mt clears the fixed band plus the rail, so a #hash landing
          puts the heading in view rather than under the chips. */
       className="relative scroll-mt-40 border-t border-menu-red/15 py-10 first:border-t-0 md:scroll-mt-44 md:py-14"
@@ -220,6 +234,7 @@ function Section({
             /* The opening photograph is the page's largest paint; it must not
                wait for a lazy-load threshold it has already crossed. */
             priority={first}
+            fetchPriority={first ? "high" : undefined}
             loading={first ? undefined : "lazy"}
           />
         </figure>

@@ -180,7 +180,7 @@ export const BRAND = {
    * No SVG exists; one would scale more cleanly and drop ~130 KB if you can export
    * it from the brand source.
    */
-  logo: { src: "/assets/brand/zoi-logo.png", width: 3130, height: 2700 },
+  logo: { src: "/assets/brand/zoi-logo.png", width: 540, height: 466 },
   /**
    * The bare Z, exactly #0b0f1a on transparent (4-channel RGBA, verified by
    * sampling: 949 of 1369 opaque pixels are that value on the nose).
@@ -194,7 +194,7 @@ export const BRAND = {
    * left instead — the tail then leads the eye toward the links on the other
    * panel rather than off the edge of the screen.
    */
-  z: { src: "/assets/brand/z.png", width: 1918, height: 1504 },
+  z: { src: "/assets/brand/z.png", width: 1200, height: 941 },
 } as const;
 
 /**

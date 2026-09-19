@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
@@ -44,9 +45,44 @@ const CLOSE_DURATION = 0.45;
  * the half-second they actually move.
  */
 export function Nav() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  /*
+    The Z panel's mask image mounts the first time the menu opens, not on
+    every page load: a CSS mask is fetched at high priority the moment its
+    element renders, so the closed, invisible panel was putting a 24 KB
+    request into the first frames of every visit. It stays mounted after.
+  */
+  const [everOpened, setEverOpened] = useState(false);
   const reducedMotion = useReducedMotion();
   const lenisRef = useLenisRef();
+
+  /*
+    Prefetch the menu route once the page has finished loading and the browser
+    is idle — never during the load itself. The pill's Menu link is on screen
+    on every page, so the default prefetch-on-sight put the menu's stylesheet
+    and its script font on the critical path of every visit.
+  */
+  useEffect(() => {
+    let idle: number | undefined;
+    let timer: number | undefined;
+    const schedule = () => {
+      const run = () => router.prefetch("/menu");
+      // Safari has no requestIdleCallback; a short timer after load stands in.
+      if (typeof window.requestIdleCallback === "function") {
+        idle = window.requestIdleCallback(run, { timeout: 4000 });
+      } else {
+        timer = window.setTimeout(run, 2500);
+      }
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+    return () => {
+      window.removeEventListener("load", schedule);
+      if (idle !== undefined) window.cancelIdleCallback?.(idle);
+      window.clearTimeout(timer);
+    };
+  }, [router]);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -302,6 +338,7 @@ export function Nav() {
           <Image
             data-nav-wordmark
             src={BRAND.logo.src}
+            unoptimized
             alt="Zoi"
             width={BRAND.logo.width}
             height={BRAND.logo.height}
@@ -336,6 +373,16 @@ export function Nav() {
           */}
           <Link
             href="/menu"
+            /*
+              Not prefetched on sight. This link is in the viewport on every
+              page, and Next's default prefetch pulled the menu route's CSS and
+              its 73 KB script font into the first seconds of every load, at
+              high priority, beside the hero poster and the body font. The
+              route is prefetched instead once the page has loaded and the
+              browser is idle — see the effect above — so the click is still
+              instant, just not at first paint's expense.
+            */
+            prefetch={false}
             className="rounded-full font-sans text-sm font-medium tracking-[0.02em] text-orange transition-colors duration-200 ease-out hover:text-navy focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:text-base"
           >
             Menu
@@ -366,7 +413,10 @@ export function Nav() {
           <button
             ref={buttonRef}
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => {
+              setEverOpened(true);
+              setOpen((v) => !v);
+            }}
             aria-expanded={open}
             aria-controls="site-menu"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -462,10 +512,10 @@ export function Nav() {
           */}
           <div
             aria-hidden="true"
-            className="aspect-[1918/1504] w-[88%] -scale-x-100 bg-navy"
+            className="aspect-[1200/941] w-[88%] -scale-x-100 bg-navy"
             style={{
-              maskImage: `url(${BRAND.z.src})`,
-              WebkitMaskImage: `url(${BRAND.z.src})`,
+              maskImage: everOpened ? `url(${BRAND.z.src})` : "none",
+              WebkitMaskImage: everOpened ? `url(${BRAND.z.src})` : "none",
               maskRepeat: "no-repeat",
               WebkitMaskRepeat: "no-repeat",
               maskPosition: "center",

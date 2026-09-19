@@ -14,10 +14,13 @@ import "./globals.css";
  *
  * Self-hosted from /src/fonts as WOFF2 (12 KB a weight, against 28 KB for the
  * TTFs the client supplied; the pack itself is kept in /fonts as the source).
- * Four weights are declared so the family answers to any weight utility; the
- * site sets its display type at 400 today. next/font preloads every file
- * listed here on every page, which is why the four lighter and heavier cuts
- * in the pack are not — add one here the day a design calls for it.
+ * Only the two cuts the site sets are declared — Regular for the display
+ * type, Medium for the menu's "Menu" — because next/font preloads every file
+ * listed here at high priority on every page, and each unused cut was one
+ * more request racing the hero poster and the body font for the first
+ * seconds of a load. The Lighthouse LCP model makes text wait for the fonts
+ * in flight, so unused cuts cost LCP directly. SemiBold and Bold sit ready in
+ * /src/fonts; add a line here the day a design sets display type bold.
  *
  * There is no italic in the family. Where the site asks for one (the small
  * label above a heading, the footer line) the browser slants the upright, and
@@ -34,8 +37,6 @@ const glorify = localFont({
   src: [
     { path: "../fonts/Glorify-Regular.woff2", weight: "400", style: "normal" },
     { path: "../fonts/Glorify-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../fonts/Glorify-SemiBold.woff2", weight: "600", style: "normal" },
-    { path: "../fonts/Glorify-Bold.woff2", weight: "700", style: "normal" },
   ],
 });
 
@@ -61,7 +62,7 @@ const mavenPro = Maven_Pro({
  * either lands here without the page contradicting itself.
  */
 const DESCRIPTION =
-  "Zoi is a modern dining restaurant at JD Hi Street Mall, Hindpiri, Ranchi — a fine-dining experience with Asian, Continental & North Indian cuisine. Reserve a table for lunch or dinner, open daily from noon to midnight.";
+  "Modern dining in Ranchi: Asian, Continental & North Indian cuisine and a full bar at JD Hi Street Mall, Hindpiri. Open daily noon to midnight. Reserve a table.";
 
 /**
  * Shorter than the <title>, and deliberately so.

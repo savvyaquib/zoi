@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { FOOD_MENU } from "@/data/menu-food";
 import { MenuPage } from "@/components/menu/MenuPage";
 import { menuSchema } from "@/lib/menu-schema";
+import { breadcrumbSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Menu — Zoi, Hindpiri, Ranchi | Food, Small Plates, Mains & Desserts",
   description:
-    "The food menu at Zoi, Ranchi: soups, salads, small plates, dim sum, pizza, hand-made pasta, Oriental, Indian mains, biryani and desserts — Asian, Continental and North Indian, with prices.",
+    "Zoi's food menu with prices: soups, small plates, dim sum, pizza, hand-made pasta, Thai, grills, Indian mains, biryani and desserts. Hindpiri, Ranchi.",
   alternates: { canonical: "/menu" },
   openGraph: {
     title: "Zoi Menu — Food",
@@ -29,6 +30,10 @@ export default function FoodMenuPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(menuSchema(FOOD_MENU, "/menu")) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema([{ name: "Menu", path: "/menu" }])) }}
       />
       <MenuPage menu={FOOD_MENU} />
     </>

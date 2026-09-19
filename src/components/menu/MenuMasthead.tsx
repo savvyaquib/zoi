@@ -34,6 +34,7 @@ export function MenuMasthead() {
             width={COVER.width}
             height={COVER.height}
             priority
+            fetchPriority="high"
             sizes="(min-width: 768px) 176px, 96px"
             className="h-auto w-full"
           />
