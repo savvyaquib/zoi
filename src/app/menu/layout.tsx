@@ -1,31 +1,14 @@
-import { Caveat } from "next/font/google";
 import { SurfaceFlag } from "@/components/SurfaceFlag";
 import { MenuMasthead } from "@/components/menu/MenuMasthead";
 import { MenuShell } from "@/components/menu/MenuShell";
 import { MenuSwitch } from "@/components/menu/MenuSwitch";
 
-/**
- * The menu's one face of its own.
- *
- * The printed bar menu sets its headings in SelfWritten, a commercial marker
- * hand with no web licence in hand; Caveat is the closest open face — the
- * same upright bounce at 500–600 — and the client chose it for the food
- * headings too. Everything else on the card now speaks in the site's own
- * voice: Glorify for "Menu", Maven Pro for names, prices and labels. The
- * Fraunces and Montserrat loads that stood in for the print's Astrid and
- * Montserrat are gone with that decision — two fewer files on the route.
- *
- * Self-hosted by next/font — no third-party request, no layout shift.
- */
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  display: "swap",
-  // The one weight the headings set. The variable file carried 400–700 at
-  // 72 KB, preloaded at high priority on both cards; the static 600 is half.
-  weight: "600",
-});
-
+/*
+  No fonts of its own. The menu once carried three faces to match the printed
+  cards; it now speaks in the site's two — Glorify for headings, Maven Pro for
+  everything else — which the root layout already loads. Nothing to preload
+  on this route that the rest of the site does not.
+*/
 export default function MenuLayout({ children }: LayoutProps<"/menu">) {
   return (
     /*
@@ -47,7 +30,7 @@ export default function MenuLayout({ children }: LayoutProps<"/menu">) {
       blinks. A page component could not do that; it is unmounted with its route.
     */
     <div
-      className={`${caveat.variable} menu-scope`}
+      className="menu-scope"
       style={
         {
           "--menu-paper": "#f1ead8",

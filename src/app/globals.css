@@ -75,19 +75,17 @@ body {
 }
 
 /*
-  ── The menu's type and colour, as Tailwind utilities ──────────────────────
+  ── The menu's colour, as Tailwind utilities ─────────────────────────────
 
-  Registered in @theme so `font-menu-script`, `text-menu-red`, `bg-menu-paper`
-  and the rest exist as ordinary utilities. The underlying variables are only
-  ever SET on the /menu layout's wrapper (app/menu/layout.tsx), so outside that
-  route these utilities resolve to nothing — the palette exception stays scoped
-  to the one place it was asked for.
+  Registered in @theme so `text-menu-red`, `bg-menu-paper` and `text-menu-ink`
+  exist as ordinary utilities. The underlying variables are only ever SET on
+  the /menu layout's wrapper (app/menu/layout.tsx), so outside that route
+  these utilities resolve to nothing — the palette exception stays scoped to
+  the one place it was asked for.
 
-  `inline` is load-bearing. A plain @theme would define --font-menu-script on
-  :root as var(--font-caveat) — and resolve it THERE, where next/font has not
-  set --font-caveat, so the value is invalid before any element ever uses it.
-  `inline` makes the utility write var(--font-caveat) directly, which then
-  resolves on the element inside the wrapper that carries it.
+  `inline` is load-bearing: it makes each utility write the var() itself,
+  which then resolves on the element inside the wrapper that carries it,
+  rather than on :root where the variable is never set.
 */
 /*
   Two strong curves for CSS transitions. Tailwind's built-in ease-out is too
@@ -101,8 +99,6 @@ body {
 }
 
 @theme inline {
-  --font-menu-script: var(--font-caveat);
-
   --color-menu-paper: var(--menu-paper);
   --color-menu-red: var(--menu-red);
   --color-menu-ink: var(--menu-ink);

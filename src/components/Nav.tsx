@@ -383,7 +383,7 @@ export function Nav() {
               instant, just not at first paint's expense.
             */
             prefetch={false}
-            className="rounded-full font-sans text-sm font-medium tracking-[0.02em] text-orange transition-colors duration-200 ease-out hover:text-navy focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:text-base"
+            className="rounded-full font-display text-base font-medium text-orange transition-colors duration-200 ease-out hover:text-navy focus-visible:ring-2 focus-visible:ring-orange focus-visible:outline-none md:text-lg"
           >
             Menu
           </Link>
