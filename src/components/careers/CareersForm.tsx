@@ -344,6 +344,14 @@ function ApplicationForm() {
             id={id("position")}
             name="position"
             required
+            /*
+              Keyed on the restored value. React applies a <select>'s
+              defaultValue only when it mounts — unlike an input, whose
+              defaultValue it keeps in sync — so after a failed send the text
+              fields came back and this one fell to "Choose one". A new key
+              remounts it with the applicant's choice.
+            */
+            key={values.position ?? "unset"}
             defaultValue={values.position ?? ""}
             aria-invalid={invalid("position")}
             aria-describedby={describe("position")}
