@@ -43,7 +43,8 @@ export async function submitApplication(
   }
 
   const token = form.get("cf-turnstile-response");
-  if (!(await verifyTurnstile(typeof token === "string" ? token : null, ip))) {
+  const check = await verifyTurnstile(typeof token === "string" ? token : null, ip);
+  if (check === "rejected") {
     return {
       status: "error",
       message: "We could not confirm you are not a robot. Please reload the page and try again.",
@@ -54,7 +55,7 @@ export async function submitApplication(
   if (!validated.ok) return validated.error;
 
   try {
-    const { id } = await sendApplication(validated.value);
+    const { id } = await sendApplication(validated.value, { verified: check === "verified" });
     // The Resend id is the handle for "HR says it never arrived" — no PII in it.
     console.info("[careers] sent", id);
   } catch (err) {

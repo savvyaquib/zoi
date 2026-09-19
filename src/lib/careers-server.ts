@@ -82,25 +82,60 @@ export function isRateLimited(ip: string): boolean {
 // ── Turnstile ─────────────────────────────────────────────────────────────────
 
 /**
- * Verifies a Cloudflare Turnstile token. Skipped entirely — and reported as
- * passed — when no secret is configured, so the form works before the keys
- * exist. Set TURNSTILE_SECRET_KEY and it becomes mandatory.
+ * The outcome of the bot check, in three states rather than a yes/no, because
+ * the two ways it can fail are not the same failure:
+ *
+ *   verified    Cloudflare confirmed the token.
+ *   rejected    Cloudflare examined the token and said no — a bot, a replay,
+ *               an expired widget. The one case that blocks.
+ *   unverified  The check could not run: no secret configured, the widget
+ *               never produced a token (script blocked, extension, network),
+ *               Cloudflare unreachable or slow, or our own secret rejected.
+ *               None of these is the applicant's fault, so the application
+ *               goes through — flagged, so HR reads it with that in mind.
+ *
+ * The rule the client set: a real resume must never be lost to a broken
+ * bot check. The honeypot and the rate limit still stand in front of it.
  */
-export async function verifyTurnstile(token: string | null, ip: string): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return true;
-  if (!token) return false;
+export type TurnstileOutcome = "verified" | "unverified" | "rejected";
 
+/** Codes Cloudflare returns when the fault is ours or theirs, not the visitor's. */
+const NOT_THE_VISITORS_FAULT = new Set(["missing-input-secret", "invalid-input-secret", "internal-error"]);
+
+export async function verifyTurnstile(token: string | null, ip: string): Promise<TurnstileOutcome> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return "verified";
+  if (!token) {
+    console.warn("[careers] turnstile: no token from the browser — accepting unverified");
+    return "unverified";
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5_000);
   try {
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ secret, response: token, remoteip: ip }),
+      signal: controller.signal,
     });
-    const data = (await res.json()) as { success?: boolean };
-    return data.success === true;
-  } catch {
-    return false;
+    if (!res.ok) {
+      console.warn(`[careers] turnstile: siteverify answered ${res.status} — accepting unverified`);
+      return "unverified";
+    }
+    const data = (await res.json()) as { success?: boolean; "error-codes"?: string[] };
+    if (data.success === true) return "verified";
+    const codes = data["error-codes"] ?? [];
+    if (codes.some((c) => NOT_THE_VISITORS_FAULT.has(c))) {
+      console.warn(`[careers] turnstile: ${codes.join(",")} — accepting unverified`);
+      return "unverified";
+    }
+    return "rejected";
+  } catch (err) {
+    console.warn("[careers] turnstile unreachable — accepting unverified:", err instanceof Error ? err.message : err);
+    return "unverified";
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -171,7 +206,10 @@ export async function validateApplication(
  * so the acknowledgement WILL fail in that state, and that must not turn a
  * successfully delivered application into an error on screen.
  */
-export async function sendApplication(app: ValidatedApplication): Promise<{ id: string }> {
+export async function sendApplication(
+  app: ValidatedApplication,
+  { verified = true }: { verified?: boolean } = {}
+): Promise<{ id: string }> {
   const resend = new Resend(env("RESEND_API_KEY"));
   const to = env("CAREERS_TO_EMAIL");
   const fromAddress = env("CAREERS_FROM_EMAIL");
@@ -189,6 +227,14 @@ export async function sendApplication(app: ValidatedApplication): Promise<{ id: 
 
   const hrBody = [
     `New application for: ${fields.position}`,
+    ...(verified
+      ? []
+      : [
+          "",
+          "Bot check: NOT completed. Cloudflare Turnstile was unavailable, or",
+          "blocked in the applicant's browser, so this one was let through",
+          "unchecked. Read it with that in mind.",
+        ]),
     "",
     `Name:        ${fields.name}`,
     `Email:       ${fields.email}`,
@@ -207,7 +253,7 @@ export async function sendApplication(app: ValidatedApplication): Promise<{ id: 
     from,
     to,
     replyTo: fields.email,
-    subject: oneLine(`Application — ${fields.position} — ${fields.name}`),
+    subject: oneLine(`${verified ? "" : "[Unverified] "}Application — ${fields.position} — ${fields.name}`),
     text: hrBody,
     attachments: [{ filename: resume.filename, content: resume.bytes }],
   });
