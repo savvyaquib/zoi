@@ -17,11 +17,15 @@ export const POSITIONS = [
 export type Position = (typeof POSITIONS)[number];
 
 /**
- * 4 MB, not 5. Vercel caps a function's request body at 4.5 MB, and multipart
- * framing adds ~10-20 KB on top of the file. next.config raises the Server
- * Action limit to match.
+ * 10 MB — enough for a phone-scanned paper resume, which is the largest thing
+ * an applicant is likely to send. next.config raises the Server Action body
+ * limit to sit just above it, for the multipart framing (~10-20 KB).
+ *
+ * This assumes the site's own Node host (Hostinger). Vercel caps a function's
+ * request body at 4.5 MB regardless of config; on that platform this must
+ * come back down to 4 MB or every larger upload fails before the action runs.
  */
-export const RESUME_MAX_BYTES = 4 * 1024 * 1024;
+export const RESUME_MAX_BYTES = 10 * 1024 * 1024;
 
 export const RESUME_ACCEPT = ".pdf,.doc,.docx";
 

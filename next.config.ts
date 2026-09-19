@@ -6,10 +6,11 @@ const nextConfig: NextConfig = {
       /*
         Server Actions refuse bodies over 1 MB by default, which would fail every
         resume upload before the action even ran. The file itself is capped at
-        4 MB in lib/careers; this is Vercel's own 4.5 MB ceiling on function bodies,
-        which leaves the multipart framing (~10-20 KB) room over the file cap.
+        10 MB in lib/careers; this sits just above it, leaving the multipart
+        framing (~10-20 KB) room over the file cap. (Vercel would ignore this
+        above its own 4.5 MB ceiling — see the note beside RESUME_MAX_BYTES.)
       */
-      bodySizeLimit: "4.5mb",
+      bodySizeLimit: "10.5mb",
     },
   },
   images: {

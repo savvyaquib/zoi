@@ -32,7 +32,7 @@ import { BUTTON_MOTION } from "@/lib/reservation";
  * The browser runs the SAME zod schema and the SAME file check the server does,
  * in `onSubmit`, before anything is sent. Two reasons:
  *
- *   1. An applicant gets told "this file is 9.3 MB, the limit is 4 MB" the
+ *   1. An applicant gets told "this file is 12.3 MB, the limit is 10 MB" the
  *      instant they pick it — not after uploading 9 MB and watching the server
  *      refuse the whole request, which the browser can only report as
  *      "Failed to fetch".
