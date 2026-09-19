@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
 import { BRAND, VENUE } from "@/lib/assets";
-import { HOME_LINK, NAV_LINKS, hashOf } from "@/lib/links";
+import { CAREERS_LINK, HOME_LINK, NAV_LINKS, hashOf } from "@/lib/links";
 import { useLenisRef } from "@/components/SmoothScroll";
 import { InstagramIcon } from "@/components/InstagramIcon";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -529,7 +529,7 @@ export function Nav() {
         {/* Right — the links. */}
         <div
           ref={rightRef}
-          className="flex w-full flex-col justify-center bg-navy px-8 md:w-1/2 md:px-16"
+          className="relative flex w-full flex-col justify-center bg-navy px-8 md:w-1/2 md:px-16"
           style={{ transform: "translateX(100%)" }}
         >
           <nav>
@@ -550,6 +550,24 @@ export function Nav() {
                 </li>
               ))}
             </ul>
+
+            {/*
+              Careers: pinned to the bottom of the panel, small, spaced caps —
+              a secondary link, deliberately not a fifth destination in the
+              list. Its ref is the last entry in linkRefs, so it arrives with
+              the same stagger as the four above it, last.
+            */}
+            <a
+              ref={(el) => {
+                linkRefs.current[NAV_LINKS.length] = el;
+              }}
+              href={CAREERS_LINK.href}
+              onClick={(e) => go(e, CAREERS_LINK.href)}
+              style={{ opacity: 0, visibility: "hidden" }}
+              className="absolute bottom-[calc(env(safe-area-inset-bottom)+2rem)] left-8 inline-block border-b border-white/20 pb-1.5 font-sans text-[11px] font-medium tracking-[0.22em] text-white/65 uppercase transition-colors duration-200 ease-out hover:border-orange hover:text-orange focus-visible:text-orange focus-visible:outline-none md:bottom-10 md:left-16"
+            >
+              {CAREERS_LINK.label}
+            </a>
           </nav>
         </div>
       </div>

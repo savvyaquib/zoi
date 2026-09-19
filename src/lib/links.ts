@@ -31,13 +31,17 @@ export const NAV_LINKS = [
 ] as const;
 
 /**
- * The footer's list: the nav, plus the pages that are not for diners.
- *
- * Careers is deliberately NOT in the nav. The nav is for someone deciding
- * whether to book a table; a job link there is noise to almost everyone who
- * opens it. The footer is where people expect to find it.
+ * Careers is not one of the nav's four destinations. The nav is for someone
+ * deciding whether to book a table; a job link among those four is noise to
+ * almost everyone who opens it. It appears twice, both times as a quieter,
+ * secondary link: in the footer, where people expect it, and pinned to the
+ * bottom of the opened nav, under the four, for anyone who opens the menu
+ * looking for it.
  */
-export const FOOTER_LINKS = [...NAV_LINKS, { label: "Careers", href: "/careers" }] as const;
+export const CAREERS_LINK = { label: "Careers", href: "/careers" } as const;
+
+/** The footer's list: the nav, plus the pages that are not for diners. */
+export const FOOTER_LINKS = [...NAV_LINKS, CAREERS_LINK] as const;
 
 /**
  * "/#about" -> "#about", for `document.querySelector`.
