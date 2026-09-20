@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CareersForm } from "@/components/careers/CareersForm";
-import { OG_IMAGE, VENUE } from "@/lib/assets";
+import { VENUE } from "@/lib/assets";
+import { pageOpenGraph } from "@/lib/og";
 import { breadcrumbSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -8,13 +9,12 @@ export const metadata: Metadata = {
   description:
     "Work at Zoi, a modern dining and lifestyle destination in Ranchi. Kitchen, service, bar and management roles — send us your resume.",
   alternates: { canonical: "/careers" },
-  openGraph: {
+  openGraph: pageOpenGraph({
     title: "Careers at Zoi",
     description:
       "Kitchen, service, bar and management roles at Zoi, Ranchi. Send us your resume.",
     url: "/careers",
-    images: [{ url: OG_IMAGE.src, width: OG_IMAGE.width, height: OG_IMAGE.height, alt: OG_IMAGE.alt }],
-  },
+  }),
 };
 
 /**

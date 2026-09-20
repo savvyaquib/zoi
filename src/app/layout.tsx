@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Maven_Pro } from "next/font/google";
 import localFont from "next/font/local";
-import { OG_IMAGE, SITE_URL, VENUE } from "@/lib/assets";
+import { HERO_STILLS, OG_IMAGE, SITE_URL, VENUE } from "@/lib/assets";
+import { pageOpenGraph } from "@/lib/og";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Nav } from "@/components/Nav";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -104,22 +105,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  openGraph: {
+  openGraph: pageOpenGraph({
     title: SOCIAL_TITLE,
     description: DESCRIPTION,
-    url: SITE_URL,
-    siteName: "Zoi",
-    locale: "en_IN",
-    type: "website",
-    images: [
-      {
-        url: OG_IMAGE.src,
-        width: OG_IMAGE.width,
-        height: OG_IMAGE.height,
-        alt: OG_IMAGE.alt,
-      },
-    ],
-  },
+    url: "/",
+  }),
   twitter: {
     card: "summary_large_image",
     title: SOCIAL_TITLE,
@@ -159,9 +149,13 @@ const restaurantSchema = {
   name: VENUE.name,
   description: DESCRIPTION,
   url: SITE_URL,
-  // Recommended for local business types; it is what carries the visual into
-  // rich results. Without it the business has no picture anywhere in the index.
-  image: [`${SITE_URL}${OG_IMAGE.src}`],
+  /*
+    Recommended for local business types; it is what carries the visual into
+    rich results. Without it the business has no picture anywhere in the index.
+    Google asks for more than one aspect ratio, so this is the 1.9:1 share card
+    followed by the 3:2 reception still it was cut from, at full resolution.
+  */
+  image: [`${SITE_URL}${OG_IMAGE.src}`, `${SITE_URL}${HERO_STILLS[6].src}`],
   telephone: VENUE.phoneRaw,
   /*
     "Fine Dining" was never a cuisine — it is a service style, and it told Google

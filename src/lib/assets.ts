@@ -91,17 +91,19 @@ export const HERO_STILLS = [
 /**
  * The share card used by Open Graph and Twitter.
  *
- * Points at a real file that exists in the repo. The reception frame is the one
- * brand-forward still — the wordmark sits dead centre, so it survives the centre
- * crop every platform applies to reach its own aspect ratio.
+ * A purpose-built 1200x630 crop of the reception still (hero-07), the one
+ * brand-forward frame — the wordmark sits dead centre, so it survives the crop.
  *
- * A purpose-built 1200x630 export would be better still; this is the honest
- * stopgap, and it is emphatically better than the 404 it replaces.
+ * Cut to 1200x630 and 112 KB for one reason above all: WhatsApp. It is how a
+ * restaurant in Ranchi actually gets shared, and it drops the preview image
+ * entirely for an og:image over ~300 KB. The 820 KB hero JPG this replaces
+ * produced a bare link with no picture there. Facebook and LinkedIn read the
+ * same crop at their native ratio, so nothing is cut off anywhere.
  */
 export const OG_IMAGE = {
-  src: "/assets/hero/hero-07.jpg",
-  width: 2400,
-  height: 1599,
+  src: "/assets/brand/og-image.jpg",
+  width: 1200,
+  height: 630,
   alt: "The illuminated Zoi wordmark at the entrance to the restaurant in Ranchi",
 } as const;
 

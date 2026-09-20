@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { BAR_MENU } from "@/data/menu-bar";
-import { OG_IMAGE } from "@/lib/assets";
 import { MenuPage } from "@/components/menu/MenuPage";
 import { menuSchema } from "@/lib/menu-schema";
+import { pageOpenGraph } from "@/lib/og";
 import { breadcrumbSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -10,12 +10,11 @@ export const metadata: Metadata = {
   description:
     "Zoi's bar menu with prices: signature and classic cocktails, spirits, wines, beers, mocktails, milkshakes, coffee and tea. JD Hi Street Mall, Ranchi.",
   alternates: { canonical: "/menu/bar" },
-  openGraph: {
+  openGraph: pageOpenGraph({
     title: "Zoi Menu — Bar",
     description: "Signature cocktails to cold brew, with prices. Modern dining at JD Hi Street Mall, Hindpiri, Ranchi.",
     url: "/menu/bar",
-    images: [{ url: OG_IMAGE.src, width: OG_IMAGE.width, height: OG_IMAGE.height, alt: OG_IMAGE.alt }],
-  },
+  }),
 };
 
 /** /menu/bar — the drinks card. See /menu for why each card is its own page. */

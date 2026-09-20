@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FOOD_MENU } from "@/data/menu-food";
 import { MenuPage } from "@/components/menu/MenuPage";
 import { menuSchema } from "@/lib/menu-schema";
+import { pageOpenGraph } from "@/lib/og";
 import { breadcrumbSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -9,12 +10,14 @@ export const metadata: Metadata = {
   description:
     "Zoi's food menu with prices: soups, small plates, dim sum, pizza, hand-made pasta, Thai, grills, Indian mains, biryani and desserts. Hindpiri, Ranchi.",
   alternates: { canonical: "/menu" },
-  openGraph: {
+  openGraph: pageOpenGraph({
     title: "Zoi Menu — Food",
     description: "Small plates to biryani, with prices. Modern dining at JD Hi Street Mall, Hindpiri, Ranchi.",
     url: "/menu",
-    images: [{ url: "/assets/menu/photo-shared-table.jpg", width: 830, height: 1173, alt: "Plates being shared across the table at Zoi" }],
-  },
+    // The one landscape food photograph. Share cards are landscape everywhere;
+    // the portrait shared-table shot came through cropped to a strip of tabletop.
+    images: [{ url: "/assets/menu/photo-dim-sum.jpg", width: 1173, height: 830, alt: "Bao and dumplings in a bamboo steamer at Zoi, Ranchi" }],
+  }),
 };
 
 /**
