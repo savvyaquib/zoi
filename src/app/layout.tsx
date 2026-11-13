@@ -7,6 +7,7 @@ import { SmoothScroll } from "@/components/SmoothScroll";
 import { Nav } from "@/components/Nav";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { Footer } from "@/components/sections/Footer";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 /**
@@ -221,6 +222,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         suppression covers this element's attributes only, nothing below it.
       */}
       <body suppressHydrationWarning>
+        <GoogleAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
